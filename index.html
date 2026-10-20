@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PV Pêche</title>
+<meta name="theme-color" content="#1E5F74"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PV Pêche"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--encre:#12262B;--fond:#EDF1EF;--surf:#fff;--ligne:#C9D4D1;--eau:#1E5F74;--surf-eau:#DCEBF0;--alerte:#B3361F;--muted:#4D6168;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--encre:#E6EEEC;--fond:#0F1D21;--surf:#17292E;--ligne:#2F454B;--eau:#7CC4D8;--surf-eau:#1C3A44;--alerte:#FF8F78;--muted:#9BB0B5;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--encre);font:400 17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px 16px 48px}
+h1{font-size:24px;margin:8px 0 4px}h2{font-size:18px;margin:26px 0 4px;padding-top:14px;border-top:1px solid var(--ligne)}.et{border:0;padding:0;margin:12px 0 0}
+.sub{color:var(--muted);margin:0 0 16px}
+label{display:block;font-weight:700;margin:14px 0 4px}
+input,select,textarea{width:100%;min-height:48px;padding:10px 12px;font:inherit;color:var(--encre);background:var(--surf);border:1px solid var(--ligne);border-radius:6px}
+textarea{min-height:140px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--eau);outline-offset:2px}
+.btn{display:block;width:100%;min-height:52px;margin-top:12px;border:0;border-radius:6px;background:var(--eau);color:var(--fond);font:700 17px inherit;font-family:inherit;cursor:pointer}
+.btn.sec{background:var(--surf-eau);color:var(--eau)}.btn:disabled{opacity:.45;cursor:default}
+.chk{display:flex;gap:12px;align-items:flex-start;background:var(--surf);border:1px solid var(--ligne);border-radius:6px;padding:10px 12px;margin-top:8px}
+.chk input{width:24px;min-height:24px;margin-top:3px;flex:none}.chk label{margin:0;font-weight:400}.chk b{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{min-height:44px;padding:6px 14px;border:1px solid var(--ligne);border-radius:22px;background:var(--surf);color:var(--encre);font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--eau);color:var(--fond);border-color:var(--eau)}
+.prog{display:flex;gap:6px;margin:12px 0 4px;overflow-x:auto}.stp{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:1px solid var(--ligne);border-radius:22px;background:var(--surf);color:var(--encre);font:inherit;cursor:pointer;white-space:nowrap}
+.stp b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--surf-eau);color:var(--eau)}.stp span{display:none}
+.stp[aria-current="true"]{background:var(--eau);color:var(--fond);border-color:var(--eau)}.stp[aria-current="true"] b{background:var(--fond);color:var(--eau)}.stp[aria-current="true"] span{display:inline}
+.bar{display:flex;gap:10px;margin-top:8px}.bar .btn{flex:1}
+.tabs{display:flex;gap:8px;margin-bottom:8px}.tabs button{flex:1;min-height:48px;border:1px solid var(--ligne);border-radius:6px;background:var(--surf);color:var(--encre);font:700 15px inherit;font-family:inherit;cursor:pointer}
+.tabs [aria-selected="true"]{background:var(--eau);color:var(--fond);border-color:var(--eau)}.tabs #tb-lock{flex:0 0 52px}
+.arc{display:block;width:100%;text-align:left;background:var(--surf);border:1px solid var(--ligne);border-left:8px solid var(--eau);border-radius:6px;padding:12px 14px;margin:0 0 10px;color:var(--encre);font:inherit;cursor:pointer;min-height:56px}.arc b{display:block}.arc span{display:block;color:var(--muted);font-size:15px}
+canvas#sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:2px solid var(--ligne);border-radius:6px;touch-action:none}
+#msg{color:var(--muted);margin-top:10px}[hidden]{display:none!important}
+.lock{position:fixed;inset:0;background:var(--fond);display:grid;place-items:start center;padding:0 16px;overflow:auto;z-index:50}.lockbox{width:100%;max-width:420px;margin-top:12vh;padding-top:env(safe-area-inset-top,0px)}
+.err{color:var(--alerte);min-height:1.5em;margin:10px 0 0}.linkbtn{background:none;border:0;color:var(--eau);font:inherit;text-decoration:underline;padding:12px 0;cursor:pointer}
+.doc{background:#fff;color:#111;font:14px/1.5 Arial,sans-serif;padding:22px 18px;border:1px solid var(--ligne);border-radius:4px;margin-top:16px}
+.doc .dt h3{margin:0;color:#1E5F74;font-size:20px}.doc .dt p{margin:4px 0 8px;color:#5B6B72;border-bottom:2px solid #1E5F74;padding-bottom:8px}
+.doc h4{margin:18px 0 6px;color:#1E5F74;font-size:13px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid #1E5F74;padding-bottom:3px}
+.doc table.kv{width:100%;border-collapse:collapse}.doc .kv td{padding:6px 8px;vertical-align:top;border-bottom:1px solid #D5DEE1}.doc .kv tr:nth-child(odd){background:#EEF3F5}.doc .kv td:first-child{width:38%;font-weight:700;color:#5B6B72;font-size:12.5px}
+.doc .dinf{background:#EEF3F5;border-left:5px solid #1E5F74;padding:8px 12px;margin:8px 0}.doc .dinf b{display:block;color:#1E5F74}.doc .dinf small{display:block;color:#5B6B72}
+.doc .dp{margin:0 0 8px}.doc .dsig{border:1px solid #CBD5D9;border-radius:4px;padding:6px;width:260px;max-width:100%}.doc .dsig img{width:100%;display:block}.doc .cap{color:#5B6B72}
+.doc .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.doc figure{margin:0}.doc figure img{width:100%;display:block}.doc figcaption{font-size:12px;color:#5B6B72}
+</style>
+</head>
+<body>
+<div id="lock" class="lock"><div class="lockbox">
+ <h1>PV Pêche</h1><p class="sub" id="lk-sub"></p>
+ <form id="lkf" autocomplete="on">
+  <label for="lu">Identifiant</label><input id="lu" autocomplete="username" autocapitalize="none" spellcheck="false">
+  <label for="lp">Mot de passe</label><input id="lp" type="password" autocomplete="current-password">
+  <div id="lcw" hidden><label for="lp2">Confirmer le mot de passe (10 caractères minimum)</label><input id="lp2" type="password" autocomplete="new-password"></div>
+  <button class="btn" id="lgo" type="submit">Se connecter</button>
+  <p id="lerr" class="err" role="alert"></p>
+ </form>
+ <button type="button" class="linkbtn" id="lforgot" hidden>Mot de passe oublié ?</button>
+ <div id="lreset" hidden><p class="sub">Le mot de passe ne peut pas être récupéré : il protège les fiches de ce téléphone. Vous pouvez seulement tout effacer et recommencer. Tapez EFFACER pour confirmer.</p><input id="lconf" autocomplete="off" aria-label="Confirmation"><button type="button" class="btn sec" id="lwipe">Effacer toutes les données de ce téléphone</button></div>
+</div></div>
+<main id="app" hidden>
+<div class="tabs" role="tablist"><button type="button" role="tab" id="tb-new" aria-selected="true">Nouveau PV</button><button type="button" role="tab" id="tb-arc" aria-selected="false">Archives</button><button type="button" role="tab" id="tb-set" aria-selected="false">Réglages</button><button type="button" id="tb-lock" aria-label="Verrouiller l’application" title="Verrouiller">&#128274;</button></div>
+<div id="v-new">
+<h1>Fiche pour la rédaction du PV</h1>
+<button class="btn sec" id="ex">Remplir avec un exemple fictif</button>
+<div id="prog" class="prog"></div><div id="form"></div>
+<div id="fin" hidden><p class="sub" style="margin-top:12px">Générez l’aperçu, puis partagez le document (PDF ou Word) : le téléphone propose votre messagerie, et vous choisissez les destinataires dans celle-ci.</p><button class="btn" id="gen">Générer l’aperçu</button>
+<div id="apercu" class="doc" hidden></div>
+<div id="act" hidden>
+ <button class="btn" id="pdf">Partager / enregistrer en PDF</button>
+ <button class="btn sec" id="dl">Partager / enregistrer en Word (.docx)</button>
+ <button class="btn sec" id="cp">Copier le texte</button>
+ <button class="btn sec" id="arch">Archiver sans partager</button>
+ <button class="btn sec" id="nouv">Nouveau PV (vider le formulaire)</button>
+</div></div>
+<div class="bar"><button type="button" class="btn sec" id="prev">Précédent</button><button type="button" class="btn" id="next">Suivant</button></div><p id="msg"></p></div>
+<div id="v-arc" hidden><h1>Archives</h1><p class="sub">Fiches enregistrées (chiffrées) sur cet appareil uniquement.</p><div id="asearch"><label for="aq">Rechercher (n° de PV, nom, prénom ou date de naissance)</label><input id="aq" type="search" placeholder="ex. : PV-2026-004, DUPONT, 12/05/1990"><p class="sub" id="acnt" style="margin-top:8px"></p></div><div id="alist"></div><div id="adet" hidden></div></div>
+<div id="v-set" hidden><h1>Réglages</h1><p class="sub">Enregistrés sur ce téléphone uniquement.</p><label for="rg">Gardes (un nom par ligne, ils seront cochés par défaut)</label><textarea id="rg" placeholder="Prénom NOM"></textarea><button type="button" class="btn" id="rsave">Enregistrer</button><p id="rmsg" class="sub" style="margin-top:10px"></p></div>
+</main>
+<script>
+
+/* ===== Utilitaires ===== */
+function $(i){return document.getElementById(i)}
+function v(i){return $(i).value.trim()}
+function ok(i){return v(i)||'[à compléter]'}
+function dn(i){var p=v(i).split('-');return p.length<3?'[à compléter]':p[2]+'/'+p[1]+'/'+p[0]}
+function hh(i){var p=v(i).split(':');return p.length<2?'[à compléter]':p[0]+' h '+p[1]}
+function fd(s){return s?s.split('-').reverse().join('/'):''}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function msg(t){$('msg').textContent=t}
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function up(k){return k==='3ème'?'4ème':k==='4ème'?'5ème':k}
+function yr(){return new Date().getFullYear()}
+function fmt(y,k){return 'PV-'+y+'-'+String(k).padStart(3,'0')}
+function ub(s){return new TextEncoder().encode(s)}
+function b64(u){var s=atob(u.split(',')[1]),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}
+function b64e(buf){var a=new Uint8Array(buf),s='';for(var i=0;i<a.length;i+=8192)s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));return btoa(s)}
+function b64d(s){return Uint8Array.from(atob(s),function(c){return c.charCodeAt(0)})}
+function lire(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
+
+/* ===== Chiffrement et connexion (local à l'appareil) ===== */
+var KEY=null,ITER=600000,CHECK='PVPECHE-OK';
+async function derive(user,pw,salt){var km=await crypto.subtle.importKey('raw',ub(user.toLowerCase()+'\n'+pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:ITER,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function enc(o){var iv=crypto.getRandomValues(new Uint8Array(12));return{iv:iv,d:await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},KEY,ub(JSON.stringify(o)))}}
+async function dec(r){return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:r.iv},KEY,r.d)))}
+function compte(){try{return JSON.parse(localStorage.getItem('fiche_pv_compte')||'null')}catch(e){return null}}
+function essais(){try{return JSON.parse(localStorage.getItem('fiche_pv_essais')||'{"n":0,"t":0}')}catch(e){return{n:0,t:0}}}
+function lkErr(t){$('lerr').textContent=t}
+function lkMode(){var c=compte();$('lcw').hidden=!!c;$('lk-sub').textContent=c?'Connectez-vous pour accéder à vos fiches.':'Première utilisation : créez votre accès à cet appareil.';$('lgo').textContent=c?'Se connecter':'Créer mon accès';$('lp').autocomplete=c?'current-password':'new-password';$('lforgot').hidden=!c}
+async function lkSubmit(e){
+ e.preventDefault();lkErr('');
+ if(!(window.crypto&&crypto.subtle)){lkErr('Ce navigateur ne permet pas le chiffrement : ouvrez l’application via son adresse https.');return}
+ var u=$('lu').value.trim(),p=$('lp').value,c=compte(),es=essais();
+ if(!u||!p){lkErr('Saisissez l’identifiant et le mot de passe.');return}
+ $('lgo').disabled=true;
+ try{
+  if(!c){
+   if(p.length<10){lkErr('Le mot de passe doit contenir au moins 10 caractères.');return}
+   if(p!==$('lp2').value){lkErr('Les deux mots de passe ne correspondent pas.');return}
+   var salt=crypto.getRandomValues(new Uint8Array(16));KEY=await derive(u,p,salt);var ch=await enc(CHECK);
+   localStorage.setItem('fiche_pv_compte',JSON.stringify({u:u,s:b64e(salt),iv:b64e(ch.iv),d:b64e(ch.d)}));
+  }else{
+   var w=Math.ceil((es.t-Date.now())/1000);if(w>0){lkErr('Trop d’essais. Réessayez dans '+w+' s.');return}
+   var good=false;
+   if(u.toLowerCase()===c.u.toLowerCase()){try{KEY=await derive(c.u,p,b64d(c.s));good=(await dec({iv:b64d(c.iv),d:b64d(c.d)}))===CHECK}catch(x){good=false}}
+   if(!good){KEY=null;es.n++;if(es.n>=5)es.t=Date.now()+Math.min(300,15*Math.pow(2,es.n-5))*1000;localStorage.setItem('fiche_pv_essais',JSON.stringify(es));lkErr('Identifiant ou mot de passe incorrect.');return}
+   localStorage.setItem('fiche_pv_essais','{"n":0,"t":0}');
+  }
+  await ouvrirSession();
+ }catch(x){KEY=null;lkErr('Connexion impossible : '+(x&&x.message||'erreur'))}
+ finally{$('lgo').disabled=false;$('lp').value='';$('lp2').value=''}
+}
+async function ouvrirSession(){
+ await loadIdx();$('lock').hidden=true;$('app').hidden=false;lkErr('');
+ prefillNum();arcCount();armer();
+}
+function verrouiller(){
+ if(!KEY&&$('app').hidden)return;
+ KEY=null;ARC=[];$('app').hidden=true;$('lock').hidden=false;$('alist').innerHTML='';$('adet').innerHTML='';$('adet').hidden=true;
+ $('lu').value=compte()?compte().u:'';$('lp').value='';lkMode();clearTimeout(TMR);
+ try{$('lp').focus()}catch(e){}
+}
+var TMR=null,HID=0;
+function armer(){clearTimeout(TMR);TMR=setTimeout(verrouiller,5*60*1000)}
+['pointerdown','keydown','touchstart'].forEach(function(ev){document.addEventListener(ev,function(){if(KEY)armer()},{passive:true})});
+document.addEventListener('visibilitychange',function(){if(document.hidden)HID=Date.now();else if(KEY&&HID&&Date.now()-HID>120000)verrouiller()});
+function effacerTout(){
+ if($('lconf').value.trim()!=='EFFACER'){lkErr('Tapez EFFACER pour confirmer.');return}
+ ['fiche_pv_compte','fiche_pv_essais','fiche_pv_gardes'].forEach(function(k){try{localStorage.removeItem(k)}catch(e){}});
+ try{var r=indexedDB.deleteDatabase('fiches_pv_chiffre');r.onsuccess=r.onerror=r.onblocked=function(){location.reload()}}catch(e){location.reload()}
+ MEM={pv:{},meta:{}};setTimeout(function(){location.reload()},1500)
+}
+
+/* ===== Stockage local chiffré ===== */
+var MEM={pv:{},meta:{}},NOIDB=false,ARC=[],CUR=null,archived='',DBP=null;
+function db(){return DBP||(DBP=new Promise(function(res,rej){var r=indexedDB.open('fiches_pv_chiffre',1);r.onupgradeneeded=function(){r.result.createObjectStore('pv',{keyPath:'id'});r.result.createObjectStore('meta')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}}))}
+function kv(st,op,a,b){
+ function mem(){var m=MEM[st];return Promise.resolve(op==='all'?Object.keys(m).map(function(k){return m[k]}):op==='get'?m[a]:op==='put'?(m[a]=b):op==='del'?delete m[a]:null)}
+ if(NOIDB)return mem();
+ return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction(st,op==='get'||op==='all'?'readonly':'readwrite'),s=t.objectStore(st),q=op==='all'?s.getAll():op==='get'?s.get(a):op==='put'?(st==='pv'?s.put(b):s.put(b,a)):s.delete(a);t.oncomplete=function(){res(q.result)};t.onerror=t.onabort=function(){rej(t.error)}})}).catch(function(){NOIDB=true;return mem()})}
+async function loadIdx(){var r=await kv('meta','get','idx');ARC=r?await dec(r):[]}
+async function saveIdx(){await kv('meta','put','idx',await enc(ARC))}
+async function putRec(rec){var e=await enc(rec);await kv('pv','put',rec.id,{id:rec.id,iv:e.iv,d:e.d});var m={id:rec.id,n:rec.n,mn:rec.mn,mp:rec.mp,nai:rec.nai,df:rec.df,codes:rec.codes,ts:rec.ts},i=ARC.findIndex(function(x){return x.id===rec.id});if(i<0)ARC.push(m);else ARC[i]=m;await saveIdx()}
+async function getRec(id){var r=await kv('pv','get',id);return r?dec(r):null}
+async function delRec(id){await kv('pv','del',id);ARC=ARC.filter(function(x){return x.id!==id});await saveIdx()}
+async function seqNext(y){var m=(await kv('meta','get','seq'+y))||0;ARC.forEach(function(x){var q=/^PV-(\d{4})-(\d+)$/.exec(x.n);if(q&&+q[1]===y&&+q[2]>m)m=+q[2]});return m+1}
+function prefillNum(){var y=yr();seqNext(y).then(function(k){$('n').value=fmt(y,k);$('n').readOnly=true})}
+function arcCount(){$('tb-arc').textContent='Archives ('+ARC.length+')'}
+async function archiverRec(){if(archived){var r=await getRec(archived);if(r)return r}var y=yr(),k=await seqNext(y),n=fmt(y,k);$('n').value=n;PAR=construire();var rec={id:n,n:n,ts:Date.now(),mn:v('mn'),mp:v('mp'),nai:v('nai'),df:v('df'),codes:Object.keys(SEL).join(', '),PAR:PAR};await putRec(rec);await kv('meta','put','seq'+y,k);archived=n;arcCount();return rec}
+async function preparer(){var rec=await archiverRec();PAR=construire();rec.PAR=PAR;rec.mn=v('mn');rec.mp=v('mp');rec.nai=v('nai');rec.df=v('df');rec.codes=Object.keys(SEL).join(', ');await putRec(rec);arcCount();return rec}
+
+var KW={'7384':'permission propriétaire droit de pêche étang privé propriété sans permission','20165':'redevance cotisation milieu aquatique carte de pêche sans carte timbre','20166':'association agréée AAPPMA adhésion membre carte de pêche sans carte'};
+var INF=[
+{c:'7384',l:'Pêche en eau douce sans la permission du titulaire du droit de pêche',k:'2ème',p:'ART.R.435-1, ART.L.435-4 C.ENVIR.',r:'ART.R.435-1, ART.L.173-7 C.ENVIR.'},
+{c:'20165',l:'Pêche en eau douce sans avoir acquitté la redevance pour protection du milieu aquatique',k:'3ème',p:'ART.R.436-3 AL.1, ART.L.436-1, ART.L.213-10-12 C.ENVIR.',r:'ART.R.436-3, ART.L.437-22 AL.1, ART.L.173-7 2° C.ENVIR.'},
+{c:'20166',l:'Pêche en eau douce par une personne n’appartenant pas à une association de pêche agréée',k:'3ème',p:'ART.R.436-3 AL.1, ART.L.436-1 C.ENVIR.',r:'ART.R.436-3, ART.L.437-22 AL.1, ART.L.173-7 2° C.ENVIR.'}];
+var RAW=`
+7360|Pollution des eaux piscicoles : substance détruisant le poisson ou nuisant à sa reproduction|D|L.432-2|7361|pollution rejet déversement produit chimique mortalité poissons
+26751|Destruction de frayères ou de zones de croissance ou d’alimentation de la faune piscicole|D|L.432-3||frayère travaux destruction habitat lit rivière
+7370|Introduction de poissons d’espèces susceptibles de provoquer des déséquilibres biologiques|D|L.432-10 1°|7371|introduction empoissonnement espèce invasive déséquilibre biologique
+7374|Introduction sans autorisation de poissons d’espèces non représentées dans les eaux|D|L.432-10 2°|7375|introduction empoissonnement lâcher espèce non représentée
+7377|Introduction de brochet, perche, sandre ou black-bass en eaux de première catégorie|D|L.432-10 3°|7378|introduction empoissonnement brochet perche sandre black-bass salmonicole
+7379|Introduction de poissons ne provenant pas d’une pisciculture agréée (rempoissonnement, alevinage)|D|L.432-12|7380|rempoissonnement alevinage pisciculture agréée origine déversement
+7385|Adjudication du droit de pêche de l’État : manœuvres frauduleuses|D|L.435-2|7386|adjudication fraude
+7451|Barrage, appareil ou pêcherie empêchant le passage du poisson ou le retenant captif|D|L.436-6|7452|barrage pêcherie obstacle passage poisson captif
+7453|Jet de drogues ou d’appâts pour enivrer ou détruire le poisson|D|L.436-7|7454|drogue appât enivrer poison
+7455|Explosifs, électrocution ou moyens non autorisés pour capturer ou détruire le poisson|D|L.436-7 al.2|7456|explosif électrocution électrique courant capture
+26101|Vente de poissons d’espèces listées sans justifier de leur origine|D|L.436-14||vente commerce origine justificatif
+7459|Vente du produit de sa pêche sans être pêcheur professionnel en eau douce|D|L.436-15|7460|vente revente commerce non professionnel
+7461|Achat ou commercialisation du produit de la pêche d’un non-professionnel|D|L.436-15 al.2|7462|achat commerce acheteur
+31926|Pêche d’anguille, d’esturgeon européen ou de saumon atlantique dans une zone interdite|D|L.436-16 I 1°||anguille esturgeon saumon zone interdite
+31927|Pêche d’anguille, d’esturgeon européen ou de saumon atlantique à une période interdite|D|L.436-16 I 1°||anguille esturgeon saumon période interdite fermeture
+31928|Pêche d’anguille, d’esturgeon ou de saumon avec un engin ou un mode de pêche interdit|D|L.436-16 I 2°||anguille esturgeon saumon engin mode interdit
+31929|Détention d’engin utilisable pour la pêche d’anguille, d’esturgeon ou de saumon près d’une zone interdite|D|L.436-16 I 3°||anguille esturgeon saumon détention engin
+31930|Vente ou mise en vente d’anguille, d’esturgeon ou de saumon issus d’une pêche illicite|D|L.436-16 I 4°||anguille esturgeon saumon vente
+31931|Transport ou colportage d’anguille, d’esturgeon ou de saumon issus d’une pêche illicite|D|L.436-16 I 4°||anguille esturgeon saumon transport colportage
+31932|Achat d’anguille, d’esturgeon ou de saumon issus d’une pêche illicite|D|L.436-16 I 4°||anguille esturgeon saumon achat
+31933|Pêche de carpe commune de plus de 60 cm dans une zone interdite|D|L.436-16 II||carpe 60 cm zone interdite
+31934|Pêche de carpe commune de plus de 60 cm à une période interdite|D|L.436-16 II||carpe 60 cm période interdite fermeture
+31935|Pêche de carpe commune de plus de 60 cm avec un mode de pêche illicite|D|L.436-16 II||carpe 60 cm mode engin interdit
+31936|Détention d’engin illicite pour la pêche de carpe commune de plus de 60 cm|D|L.436-16 II||carpe 60 cm détention engin
+31937|Vente de carpe commune de plus de 60 cm issue d’une pêche illicite|D|L.436-16 II||carpe 60 cm vente
+31938|Colportage de carpe commune de plus de 60 cm issue d’une pêche illicite|D|L.436-16 II||carpe 60 cm colportage
+31939|Achat de carpe commune de plus de 60 cm issue d’une pêche illicite|D|L.436-16 II||carpe 60 cm achat
+26102|Transport vivant d’une carpe commune de plus de 60 cm par un pêcheur amateur|D|L.436-16 II||carpe vivant transport 60 cm
+7471|Pêche pendant une période d’exclusion des associations agréées de pêche|D|L.437-22|12819|exclusion condamnation association
+29675|Obstacle aux fonctions de recherche et de constatation des infractions|D|L.173-4||obstacle refus entrave contrôle agent garde refuser
+7376|Non-respect des prescriptions de l’autorisation d’introduction de poissons|5|R.432-11||introduction autorisation empoissonnement prescriptions
+21591|Non-respect des prescriptions de l’autorisation de capture de poissons (pêche d’intérêt général)|5|R.432-11||capture pêche d’intérêt général autorisation
+21592|Non-respect des prescriptions de l’autorisation de transport de poissons|5|R.432-11||transport autorisation
+12820|Livraison de poissons pour rempoissonnement par une pisciculture non agréée|5|R.432-18||pisciculture livraison rempoissonnement agrément
+7391|Riverain ne laissant pas aux pêcheurs un espace libre le long d’un cours d’eau ou plan d’eau domanial|4|R.435-40||riverain passage pêcheurs berge domanial accès
+21467|Pêche sans être porteur du document justifiant la qualité de membre d’une association agréée|1|R.436-3 al.2||carte de pêche non présentée oubliée défaut document adhérent
+21468|Pêche sans être porteur du document justifiant le paiement de la redevance|1|R.436-3 al.2||carte de pêche non présentée oubliée redevance justificatif
+20161|Conditions générales de pêche non respectées en première catégorie piscicole|3|R.436-5||première catégorie salmonicole conditions générales
+20162|Conditions générales de pêche non respectées en seconde catégorie piscicole|3|R.436-5||seconde catégorie cyprinicole conditions générales
+20163|Conditions générales de pêche non respectées : saumon|3|R.436-5||saumon conditions générales
+20164|Conditions générales de pêche non respectées : emploi de plusieurs lignes|3|R.436-5||plusieurs lignes nombre de lignes canne
+20158|Pêche pendant les temps d’interdiction|3|R.436-40 I 1°|20143|fermeture période interdite temps d’interdiction ouverture
+21593|Pêche pendant le temps d’interdiction prévu à l’article R.436-12|3|R.436-40 I 1°|21594|fermeture période interdite temps d’interdiction
+20148|Pêche pendant les heures d’interdiction|3|R.436-40 I 2°||heure horaire avant après lever coucher soleil
+20157|Usage prohibé d’engins de pêche autorisés|3|R.436-40 I 3°|20141|engin prohibé interdit usage
+20156|Usage d’engins de pêche autorisés en nombre supérieur à la limite|3|R.436-40 I 3°|20145|surnuméraire nombre lignes engins
+21312|Usage d’engins de pêche autorisés surdimensionnés|3|R.436-40 I 3°|21311|surdimensionné taille engin
+20155|Emploi d’un procédé ou d’un mode de pêche prohibé|3|R.436-40 I 3°|20142|procédé mode prohibé interdit appât amorce asticot
+20152|Pêche de poissons n’ayant pas la taille minimale|3|R.436-40 I 4°|20138|taille maille minimale sous-taille mesure
+20153|Transport de poissons n’ayant pas la taille minimale|3|R.436-40 I 4°|20139|taille maille minimale transport
+20154|Vente de poissons n’ayant pas la taille minimale|3|R.436-40 I 4°|20140|taille maille minimale vente
+20150|Pêche de saumons au-delà du nombre autorisé|3|R.436-40 I 5°|20136|saumon quota nombre captures
+20151|Transport de saumons au-delà du nombre autorisé|3|R.436-40 I 5°|20137|saumon quota nombre transport
+7438|Concours de pêche en première catégorie sans autorisation ou hors prescriptions|3|R.436-40 I 6°|20144|concours compétition autorisation
+20160|Pêche d’espèces de poissons déterminées par arrêté préfectoral|3|R.436-40 I 7°|20147|arrêté préfectoral espèce interdite
+27634|Non-respect des prescriptions d’un arrêté préfectoral (article R.436-23)|3|R.436-40 I 7°||arrêté préfectoral procédé mode
+20149|Non-respect d’un arrêté préfectoral (article R.436-32) : pêche dans l’eau|3|R.436-40 I 7°|20135|arrêté préfectoral eau
+20159|Non-respect d’un arrêté préfectoral (article R.436-32) : régime d’eau réduit|3|R.436-40 I 7°|20146|arrêté préfectoral régime d’eau réduit étiage sécheresse
+7437|Port de nuit, hors du domicile, d’engins de pêche prohibés|3|R.436-40 I 8°||porteur nuit engin prohibé filet
+25988|Maintien en captivité des carpes : prescriptions non respectées|3|R.436-40 I 9°||carpe captivité maintien vivier
+25989|Transport des carpes : prescriptions non respectées|3|R.436-40 I 9°||carpe transport
+22279|Pêche dans les grands lacs intérieurs : arrêté préfectoral non respecté|3|R.436-41|23373|lac grand lac arrêté
+7465|Mariniers et employés de balisage : détention d’engin ou de filet prohibé|3|R.436-42||marinier balisage détention engin filet
+7466|Mariniers et employés de balisage : pêche avec engin ou filet prohibé|3|R.436-42||marinier balisage engin filet
+20168|Poisson migrateur sous la taille minimale non remis à l’eau immédiatement|3|R.436-67||migrateur taille remise à l’eau relâcher
+23220|Saumon sans marque d’identification|3|R.436-67||saumon marque identification
+23221|Saumon sans carnet nominatif de pêche|3|R.436-67||saumon carnet
+20169|Pêche de poissons migrateurs en période d’interdiction|5|R.436-68 I 1°||migrateur saumon alose lamproie période fermeture
+23222|Saumon sans marque d’identification (article R.436-65)|5|R.436-68 I 2°||saumon marque identification
+23223|Saumon sans carnet nominatif de pêche (article R.436-65)|5|R.436-68 I 2°||saumon carnet
+23224|Pêcheur amateur : capture de poisson migrateur non déclarée|5|R.436-68 I 2°||migrateur déclaration capture amateur
+27989|Pêche de l’anguille hors unité de gestion autorisée|5|R.436-68 I 3°||anguille unité de gestion
+27990|Pêche amateur d’anguille de moins de 12 cm|5|R.436-68 I 3°||anguille civelle 12 cm amateur
+27994|Pêche amateur d’anguille pendant une période interdite|5|R.436-68 I 3°||anguille période fermeture amateur
+28000|Carnet de pêche d’anguille non tenu|5|R.436-68 I 4°||anguille carnet pêche
+28001|Fiche de pêche d’anguille non renseignée|5|R.436-68 I 4°||anguille fiche pêche
+28002|Captures d’anguille non déclarées|5|R.436-68 I 4°||anguille déclaration captures
+28003|Déclarations de captures d’anguille inexactes ou mensongères|5|R.436-68 I 4°||anguille déclaration fausse
+7402|Pêche à la ligne dans un dispositif de franchissement (continuité biologique)|4|R.436-79|7403|passe à poissons échelle franchissement continuité dispositif
+7404|Pêche aux engins ou filets dans un dispositif de franchissement (continuité biologique)|5|R.436-79||passe à poissons franchissement continuité engins filets
+7406|Pêche à la ligne dans un dispositif de franchissement situé à l’intérieur d’un bâtiment|4|R.436-79|7407|passe à poissons usine bâtiment franchissement
+7408|Pêche aux engins ou filets dans un dispositif de franchissement situé à l’intérieur d’un bâtiment|5|R.436-79||passe à poissons usine bâtiment engins filets
+23518|Pêche avec plusieurs lignes à partir d’une écluse ou d’un barrage (moins de 50 m en aval)|4|R.436-79|23520|barrage écluse 50 mètres aval plusieurs lignes
+23519|Pêche aux engins et filets à partir d’une écluse ou d’un barrage (moins de 200 m)|5|R.436-79||barrage écluse 200 mètres engins filets
+7422|Pêche à la ligne dans une réserve de pêche|4|R.436-79|7423|réserve de pêche interdite
+7424|Pêche aux engins et filets dans une réserve de pêche|5|R.436-79||réserve de pêche engins filets
+6032|Non-respect d’un arrêté municipal (police du maire) ou d’un autre arrêté de police, hors infraction spéciale|2|R.610-5 C.PENAL||arrêté municipal arrêté du maire commune police interdiction pêche arrêté de police
+`;
+INF=INF.map(function(x){return{c:x.c,l:x.l,k:x.k,p:x.p,r:x.r,n:'',w:KW[x.c]}}).concat(RAW.trim().split('\n').map(function(t){var a=t.split('|');return{c:a[0],l:a[1],k:a[2]==='D'?'Délit':a[2]==='1'?'1ère':a[2]+'ème',p:'ART.'+a[3]+(a[3].indexOf('PEN')<0?' C.ENVIR.':''),r:'',n:a[4],w:a[5]}}));
+var TYPES=[
+{id:'carte',n:'Pêche sans carte',b:1,c:['7384','20165','20166']},
+{id:'doc',n:'Carte non présentée',b:1,c:['21467','21468']},
+{id:'periode',n:'Périodes et heures interdites',c:['20158','21593','20148','7437']},
+{id:'taille',n:'Tailles et quantités',c:['20152','20153','20154','20150','20151']},
+{id:'engins',n:'Engins et modes de pêche',c:['20157','20156','21312','20155','20161','20162','20163','20164','7453','7455','7465','7466']},
+{id:'reserve',n:'Réserves, passes à poissons, barrages',c:['7422','7424','7402','7404','7406','7408','23518','23519','7451']},
+{id:'arrete',n:'Arrêtés (municipal, préfectoral) et concours',c:['6032','20160','27634','20149','20159','22279','7438']},
+{id:'migr',n:'Migrateurs, anguille, carpe de plus de 60 cm',c:['20168','23220','23221','20169','23222','23223','23224','27989','27990','27994','28000','28001','28002','28003','31926','31927','31928','31929','31930','31931','31932','31933','31934','31935','31936','31937','31938','31939','26102','25988','25989']},
+{id:'intro',n:'Introductions et empoissonnement',c:['7370','7374','7377','7379','7376','21591','21592','12820']},
+{id:'milieu',n:'Pollution et destruction du milieu',c:['7360','26751']},
+{id:'commerce',n:'Vente et commerce du poisson',c:['26101','7459','7461']},
+{id:'ctrl',n:'Contrôle et exclusion',c:['29675','7471']}];
+var TYPS=TYPES,TYPE='';
+var TRAME='À [heure], nous observons [nombre] individu(s) se livrant à l’exercice de la pêche.\n\nNous décidons de procéder à leur contrôle. Déclinant nos qualités, nous demandons de nous présenter la carte de pêche pour l’année en cours.\n\n[Réponse du pêcheur et faits constatés.]\n\n[Le pêcheur reconnaît ou conteste les faits.]';
+/* ===== Formulaire en 5 étapes ===== */
+var GARDES=lire('fiche_pv_gardes'),SEL={},PH=[],sigDirty=false,PAR=[],DL=null,cur=1;
+var STEPS=['Agent verbalisateur','Contrevenant','Lieu et faits','Reconnaissance','Document'];
+var F=[['step',1,'Agent verbalisateur'],
+['n','N° de PV (attribué automatiquement)','text',''],['gardes','','gardes'],['g2','Autre garde (facultatif)','text','','Prénom NOM'],['res','Résidence administrative','text','Limoges (87000)'],
+['step',2,'Contrevenant'],
+['civ','Civilité','select',['Monsieur','Madame']],['mn','Nom','text'],['mp','Prénom','text'],['nai','Date de naissance','date'],['nal','Lieu de naissance','text'],['adr','Adresse','text'],['tel','Téléphone','text'],
+['idv','Identité','select',['Renseignements fournis par le pêcheur, sans justificatif','Identité vérifiée sur pièce d’identité']],['pre','Personne présente avec lui (facultatif)','text'],
+['step',3,'Lieu et faits'],
+['df','Date des faits','date'],['hf','Heure des faits','time'],['hp','Heure à laquelle le PV est dressé','time'],
+['milieu','Type de milieu','select',['cours d’eau','plan d’eau']],['nom','Nom du milieu','text','','La Vienne'],['cat','Catégorie piscicole','select',['première','deuxième']],['lieu','Lieu précis','text','','amont immédiat du pont …'],['com','Commune','text','','SAINT-JUNIEN (87200)'],
+['h','Infractions relevées'],['inf','','infs'],
+['h','Constatations'],['cons','','textarea',TRAME],
+['h','Photos'],['photos','','photos'],
+['step',4,'Reconnaissance et signature'],
+['reco','Position du contrevenant','select',['Reconnaît les faits','Conteste les faits','Ne fait aucune déclaration']],['decl','Déclarations du contrevenant (facultatif)','textarea',''],['sig','','sign'],
+['step',5,'Document']];
+function rend(){
+ var h='';
+ F.forEach(function(f){
+  if(f[0]==='step'){h+=(f[1]>1?'</section>':'')+'<section id="et'+f[1]+'"'+(f[1]>1?' hidden':'')+'><h2 class="et">'+f[2]+'</h2>';return}
+  if(f[0]==='h'){h+='<h2>'+f[1]+'</h2>';return}
+  if(f[2]==='gardes'){h+='<p class="sub" style="margin-top:12px">Gardes présents'+(GARDES.length?' (cochés par défaut)':' : à configurer dans l’onglet Réglages')+'</p>'+GARDES.map(function(g,i){return '<div class="chk"><input type="checkbox" id="gd'+i+'" data-g="'+esc(g)+'" checked><label for="gd'+i+'">'+esc(g)+'</label></div>'}).join('');return}
+  if(f[2]==='infs'){h+='<label>Type d’infraction</label><div class="chips" id="tchips"></div><label for="q">Ou rechercher (mots-clés ou code NATINF)</label><input id="q" type="search" placeholder="ex. : carte, taille, brochet, arrêté, 20148"><div class="chk" style="margin-top:12px"><input type="checkbox" id="nuit"><label for="nuit"><b>Faits commis de nuit</b>Utilise le code NATINF « de nuit » quand il existe</label></div><p class="sub" id="nres" style="margin-top:12px"></p><div id="qres"></div><h2 style="border:0;padding:0;margin-top:18px">Infractions sélectionnées</h2><div id="qsel"></div>';return}
+  if(f[2]==='sign'){h+='<label for="sig">Signature du contrevenant (au doigt ou au stylet)</label><canvas id="sig" width="640" height="240" aria-label="Zone de signature"></canvas><button type="button" class="btn sec" id="sigclr">Effacer la signature</button><div class="chk" style="margin-top:12px"><input type="checkbox" id="refus"><label for="refus">Le contrevenant refuse de signer</label></div>';return}
+  if(f[2]==='photos'){h+='<label for="phin">Ajouter des photos (appareil photo ou galerie)</label><input id="phin" type="file" accept="image/*" multiple><div id="phl"></div>';return}
+  h+='<label for="'+f[0]+'">'+f[1]+'</label>';
+  if(f[2]==='select')h+='<select id="'+f[0]+'">'+f[3].map(function(o){return '<option>'+o+'</option>'}).join('')+'</select>';
+  else if(f[2]==='textarea')h+='<textarea id="'+f[0]+'">'+f[3]+'</textarea>';
+  else h+='<input id="'+f[0]+'" type="'+f[2]+'" value="'+(f[3]||'')+'" placeholder="'+(f[4]||'')+'">';
+ });
+ $('form').innerHTML=h+'</section>';
+ chips();
+ $('q').addEventListener('input',function(){TYPE='';chips();filtrer()});
+ $('tchips').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(!b)return;var t=TYPS.filter(function(x){return x.id===b.dataset.t})[0];$('q').value='';
+  if(t.b){var all=t.c.every(function(c){return SEL[c]});t.c.forEach(function(c){if(all)delete SEL[c];else SEL[c]=1});TYPE=t.id}else TYPE=TYPE===t.id?'':t.id;
+  chips();filtrer();rendSel()});
+ filtrer();rendSel();initSign();initPhotos();
+ if(!rend.w){rend.w=1;$('prog').addEventListener('click',function(e){var b=e.target.closest('button');if(b)etape(+b.dataset.st)});$('prev').addEventListener('click',function(){etape(cur-1)});$('next').addEventListener('click',function(){etape(cur+1)})}
+ etape(1);
+}
+function chips(){var seen={};TYPES.forEach(function(t){t.c.forEach(function(c){seen[c]=1})});var o=INF.filter(function(x){return!seen[x.c]}).map(function(x){return x.c});TYPS=TYPES.concat(o.length?[{id:'autres',n:'Autres',c:o}]:[]);
+ $('tchips').innerHTML=TYPS.map(function(t){return '<button type="button" class="chip" data-t="'+t.id+'" aria-pressed="'+(TYPE===t.id)+'">'+t.n+(t.b?' · '+t.c.length+' NATINF':'')+'</button>'}).join('')}
+function item(x,ck,p){return '<div class="chk"><input type="checkbox" id="'+p+x.c+'" data-c="'+x.c+'"'+(ck?' checked':'')+'><label for="'+p+x.c+'"><b>NATINF '+x.c+' · '+(x.k==='Délit'?'délit':'contravention de '+x.k+' classe')+(x.n?' · de nuit : '+x.n:'')+'</b>'+esc(x.l)+'</label></div>'}
+function filtrer(){var t=norm($('q').value).split(/\s+/).filter(Boolean),r,ty=TYPS.filter(function(x){return x.id===TYPE})[0];
+ if(t.length)r=INF.filter(function(x){var s=norm(x.c+' '+x.n+' '+x.l+' '+x.w+' '+x.k+' '+x.p);return t.every(function(w){return s.indexOf(w)>=0})});
+ else r=ty?ty.c.map(function(c){return INF.filter(function(x){return x.c===c})[0]}).filter(Boolean):[];
+ $('nres').textContent=t.length?r.length+' résultat(s)':ty?ty.n+' : '+r.length+' NATINF':'Choisissez un type d’infraction ou tapez un mot-clé ('+INF.length+' NATINF disponibles)';
+ $('qres').innerHTML=r.slice(0,60).map(function(x){return item(x,SEL[x.c],'r')}).join('')+(r.length>60?'<p class="sub">Affinez la recherche pour voir les '+(r.length-60)+' autres.</p>':'')}
+function rendSel(){var s=INF.filter(function(x){return SEL[x.c]});$('qsel').innerHTML=s.length?s.map(function(x){return item(x,true,'s')}).join(''):'<p class="sub">Aucune infraction sélectionnée.</p>'}
+document.addEventListener('change',function(e){var c=e.target.dataset&&e.target.dataset.c;if(!c)return;if(e.target.checked)SEL[c]=1;else delete SEL[c];document.querySelectorAll('#qres [data-c="'+c+'"]').forEach(function(b){b.checked=!!SEL[c]});rendSel()});
+function prog(){$('prog').innerHTML=STEPS.map(function(t,i){return '<button type="button" class="stp" data-st="'+(i+1)+'" aria-current="'+(i+1===cur)+'"><b>'+(i+1)+'</b><span>'+t+'</span></button>'}).join('')}
+function etape(n){cur=Math.max(1,Math.min(5,n));for(var i=1;i<=5;i++)$('et'+i).hidden=i!==cur;$('fin').hidden=cur!==5;$('prev').disabled=cur===1;$('next').hidden=cur===5;prog();window.scrollTo(0,0)}
+function gardesSel(){var l=[];document.querySelectorAll('[data-g]').forEach(function(b){if(b.checked)l.push(b.dataset.g)});if(v('g2'))l.push(v('g2'));return l}
+function initSign(){var c=$('sig'),x=c.getContext('2d'),d=false;x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.lineWidth=3;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#12262B';
+ function pos(e){var r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]}
+ c.addEventListener('pointerdown',function(e){d=true;c.setPointerCapture(e.pointerId);var p=pos(e);x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(p[0]+0.1,p[1]+0.1);x.stroke();sigDirty=true;e.preventDefault()});
+ c.addEventListener('pointermove',function(e){if(!d)return;var p=pos(e);x.lineTo(p[0],p[1]);x.stroke();e.preventDefault()});
+ ['pointerup','pointercancel'].forEach(function(t){c.addEventListener(t,function(){d=false})});
+ $('sigclr').addEventListener('click',function(){x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);sigDirty=false})}
+function rendPh(){$('phl').innerHTML=PH.map(function(p,i){return '<div class="chk"><img src="'+p.url+'" alt="Photo '+(i+1)+'" style="width:72px;height:72px;object-fit:cover;border-radius:4px;flex:none"><div style="flex:1"><input data-cap="'+i+'" placeholder="Légende (ex. : engin saisi)" value="'+esc(p.cap)+'"><button type="button" class="btn sec" style="margin-top:8px;min-height:44px" data-rm="'+i+'">Retirer</button></div></div>'}).join('')}
+function initPhotos(){
+ $('phin').addEventListener('change',function(){Array.prototype.slice.call(this.files).forEach(function(f){var im=new Image(),u=URL.createObjectURL(f);im.onload=function(){var s=Math.min(1,1280/Math.max(im.width,im.height)),w=Math.round(im.width*s),h=Math.round(im.height*s),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);PH.push({url:c.toDataURL('image/jpeg',0.72),w:w,h:h,cap:''});rendPh()};im.onerror=function(){URL.revokeObjectURL(u)};im.src=u});this.value=''});
+ $('phl').addEventListener('input',function(e){var i=e.target.dataset.cap;if(i!=null)PH[+i].cap=e.target.value});
+ $('phl').addEventListener('click',function(e){var i=e.target.dataset.rm;if(i!=null){PH.splice(+i,1);rendPh()}})}
+
+/* ===== Modèle du document (structure réutilisée par l'aperçu, le PDF, le Word et le texte) ===== */
+function construire(){
+ var P=[],nuit=$('nuit').checked,sel=INF.filter(function(x){return SEL[x.c]}),n=ok('n');
+ function sec(a){P.push({t:'sec',a:a})}function kv(a,b){P.push({t:'kv',a:a,b:b})}
+ P.push({t:'title',a:'Fiche de renseignements pour procès-verbal',b:'N° '+n+'  ·  Faits du '+dn('df'),n:n});
+ sec('Dossier');kv('N° de PV',n);kv('Date des faits',dn('df'));kv('Heure des faits',hh('hf'));kv('Heure à laquelle le PV est dressé',hh('hp'));if(nuit)kv('Faits commis de nuit','Oui');
+ sec('Gardes rédacteurs');var g=gardesSel();if(!g.length)g=['[à compléter]'];g.forEach(function(x,i){kv('Garde '+(i+1),x)});kv('Résidence administrative',ok('res'));
+ sec('Lieu des faits');kv('Type de milieu',v('milieu'));kv('Nom',ok('nom'));kv('Catégorie piscicole',v('cat'));kv('Lieu précis',ok('lieu'));kv('Commune',ok('com'));
+ sec('Contrevenant');kv('Identité',(v('civ')+' '+ok('mn')+' '+v('mp')).trim());kv('Né(e) le',dn('nai')+' à '+ok('nal'));kv('Adresse',ok('adr'));if(v('tel'))kv('Téléphone',v('tel'));kv('Justificatif d’identité',v('idv'));if(v('pre'))kv('Personne présente',v('pre'));
+ sec('Infractions relevées');if(!sel.length)P.push({t:'para',a:'[aucune infraction sélectionnée]'});
+ sel.forEach(function(x){var nn=nuit&&x.n,k=nn?up(x.k):x.k,ex=x.r?['Prévue par : '+x.p,'Réprimée par : '+x.r]:['Article(s) : '+x.p];P.push({t:'inf',c:nn?x.n:x.c,l:x.l+(nn?' (de nuit)':''),k:k==='Délit'?'Délit':'Contravention de '+k+' classe',x:ex})});
+ sec('Constatations');v('cons').split(/\n\s*\n/).filter(Boolean).forEach(function(t){P.push({t:'para',a:t.replace(/\n/g,' ')})});
+ sec('Reconnaissance du contrevenant');kv('Position',v('reco'));if(v('decl'))kv('Déclarations',v('decl'));
+ if($('refus').checked)kv('Signature','Le contrevenant refuse de signer');
+ else if(sigDirty){var c=$('sig');P.push({t:'sig',a:'Signature du contrevenant',o:{url:c.toDataURL('image/jpeg',0.92),w:c.width,h:c.height}})}
+ else kv('Signature','[non recueillie]');
+ if(PH.length){sec('Photos');PH.forEach(function(p,i){P.push({t:'img',a:'Photo '+(i+1)+(p.cap?' : '+p.cap:''),o:{url:p.url,w:p.w,h:p.h}})})}
+ return P}
+function texte(P){var o=[];P.forEach(function(p){if(p.t==='title')o.push(p.a,p.b);else if(p.t==='sec')o.push('','== '+p.a.toUpperCase()+' ==');else if(p.t==='kv')o.push(p.a+' : '+p.b);else if(p.t==='inf'){o.push('NATINF '+p.c+' – '+p.l,p.k);p.x.forEach(function(x){o.push(x)})}else o.push(p.a)});return o.join('\n').trim()}
+function el(tag,cls,t){var e=document.createElement(tag);if(cls)e.className=cls;if(t!=null)e.textContent=t;return e}
+function paint(a,P){a.innerHTML='';var kv=null,gr=null;
+ P.forEach(function(p){if(p.t!=='kv')kv=null;if(p.t!=='img')gr=null;
+  if(p.t==='title'){var d=el('div','dt');d.appendChild(el('h3',null,p.a));d.appendChild(el('p',null,p.b));a.appendChild(d)}
+  else if(p.t==='sec')a.appendChild(el('h4',null,p.a));
+  else if(p.t==='kv'){if(!kv){kv=el('table','kv');a.appendChild(kv)}var r=kv.insertRow();r.insertCell().textContent=p.a;r.insertCell().textContent=p.b}
+  else if(p.t==='inf'){var d=el('div','dinf');d.appendChild(el('b',null,'NATINF '+p.c+'  ·  '+p.k));d.appendChild(el('div',null,p.l));p.x.forEach(function(x){d.appendChild(el('small',null,x))});a.appendChild(d)}
+  else if(p.t==='para')a.appendChild(el('p','dp',p.a));
+  else if(p.t==='sig'){var d=el('div','dsig'),im=el('img');im.src=p.o.url;im.alt=p.a;d.appendChild(im);a.appendChild(d);a.appendChild(el('small','cap',p.a))}
+  else if(p.t==='img'){if(!gr){gr=el('div','dgrid');a.appendChild(gr)}var f=el('figure');var im=el('img');im.src=p.o.url;im.alt=p.a;f.appendChild(im);f.appendChild(el('figcaption',null,p.a));gr.appendChild(f)}})}
+/* ===== PDF (généré sans bibliothèque) ===== */
+var HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+function pdf(P){
+ var W=595,H=842,M=48,CW=W-2*M,HB=34,TOP=H-HB-24,BOT=52,pages=[],pg=null,y=0,IM=[];
+ var TEAL=[0.118,0.373,0.455],GR=[0.36,0.41,0.44],INK=[0.07,0.15,0.17],BG=[0.935,0.953,0.96],LN=[0.78,0.83,0.85],WH=[1,1,1];
+ var WA={8217:146,8216:145,8220:147,8221:148,8211:150,8212:151,8230:133,339:156,338:140,8364:128,160:32};
+ function np(){pg={o:[]};pages.push(pg);y=TOP}
+ function need(h){if(!pg||y-h<BOT)np()}
+ function cl(c,s){return c[0]+' '+c[1]+' '+c[2]+' '+s}
+ function f1(x){return x.toFixed(1)}
+ function rect(x,yy,w,h,c){pg.o.push(cl(c,'rg')+' '+f1(x)+' '+f1(yy)+' '+f1(w)+' '+f1(h)+' re f')}
+ function box(x,yy,w,h,c,lw){pg.o.push(cl(c,'RG')+' '+lw+' w '+f1(x)+' '+f1(yy)+' '+f1(w)+' '+f1(h)+' re S')}
+ function hl(x1,yy,x2,c,lw){pg.o.push(cl(c,'RG')+' '+lw+' w '+f1(x1)+' '+f1(yy)+' m '+f1(x2)+' '+f1(yy)+' l S')}
+ function wd(s,b){var w=0;for(var i=0;i<s.length;i++){var c=s.charAt(i),k=c.charCodeAt(0);
+  if(k===8217)w+=222;else if(k===339)w+=889;else if(k===8211||k===8212||k===171||k===187)w+=556;else if(k===8230)w+=1000;
+  else{k=c.normalize('NFD').charCodeAt(0);w+=(k>=32&&k<=126?HW[k-32]:556)}}return w*(b?1.08:1)/1000}
+ function enc(s){var o='';for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);if(WA[c]!==undefined)c=WA[c];if(c>255)c=63;
+  if(c===40||c===41||c===92)o+='\\'+String.fromCharCode(c);else if(c<32||c>126)o+='\\'+('00'+c.toString(8)).slice(-3);else o+=String.fromCharCode(c)}return o}
+ function txt(s,x,yy,sz,b,c){pg.o.push('BT /F'+(b?2:1)+' '+sz+' Tf '+cl(c,'rg')+' '+f1(x)+' '+f1(yy)+' Td ('+enc(s)+') Tj ET')}
+ function wrap(s,sz,w){var out=[],ln='';String(s).split(/\s+/).forEach(function(t){if(!t)return;var u=ln?ln+' '+t:t;if(wd(u)*sz>w&&ln){out.push(ln);ln=t}else ln=u});if(ln)out.push(ln);return out.length?out:['']}
+ function reg(o){IM.push({w:o.w,h:o.h,bytes:b64(o.url)});return IM.length-1}
+ function draw(i,x,yy,w,h){pg.o.push('q '+f1(w)+' 0 0 '+f1(h)+' '+f1(x)+' '+f1(yy)+' cm /Im'+i+' Do Q')}
+ var i=0;
+ while(i<P.length){var p=P[i];
+  if(p.t==='title'){need(70);y-=24;txt(p.a,M,y,19,true,TEAL);y-=19;txt(p.b,M,y,10.5,false,GR);y-=9;hl(M,y,M+CW,TEAL,1.5);y-=4;i++}
+  else if(p.t==='sec'){var nx=P[i+1];need(46+(nx&&nx.t==='img'?200:nx&&nx.t==='inf'?80:nx&&nx.t==='sig'?130:44));y-=20;txt(p.a.toUpperCase(),M,y,10.5,true,TEAL);y-=5;hl(M,y,M+CW,TEAL,0.8);y-=6;i++}
+  else if(p.t==='kv'){var z=0;while(i<P.length&&P[i].t==='kv'){var q=P[i],ll=wrap(q.a,9.5,170),vl=wrap(q.b,10.5,CW-190),n=Math.max(ll.length,vl.length),h=n*13.5+9;need(h);
+    if(z%2===0)rect(M,y-h,CW,h,BG);ll.forEach(function(s,j){txt(s,M+8,y-13-j*13.5,9.5,true,GR)});vl.forEach(function(s,j){txt(s,M+182,y-13-j*13.5,10.5,false,INK)});y-=h;z++;i++}y-=2}
+  else if(p.t==='inf'){var ls=wrap(p.l,10.5,CW-30),h=10+14+ls.length*13.5+p.x.length*12+8;need(h+8);y-=4;rect(M,y-h,CW,h,BG);rect(M,y-h,4,h,TEAL);
+    txt('NATINF '+p.c+'   ·   '+p.k,M+14,y-17,10.5,true,TEAL);var yy=y-31;ls.forEach(function(s){txt(s,M+14,yy,10.5,false,INK);yy-=13.5});p.x.forEach(function(s){txt(s,M+14,yy+1,9,false,GR);yy-=12});y-=h+4;i++}
+  else if(p.t==='para'){wrap(p.a,10.5,CW).forEach(function(s){need(18);y-=15;txt(s,M,y,10.5,false,INK)});y-=5;i++}
+  else if(p.t==='sig'){var bw=250,bh=105;need(bh+34);y-=10+bh;box(M,y,bw,bh,LN,0.8);var k=Math.min((bw-14)/p.o.w,(bh-14)/p.o.h),w=p.o.w*k,h=p.o.h*k;draw(reg(p.o),M+(bw-w)/2,y+(bh-h)/2,w,h);y-=13;txt(p.a,M,y,8.5,false,GR);y-=8;i++}
+  else if(p.t==='img'){var cw=(CW-14)/2,row=[P[i]];if(P[i+1]&&P[i+1].t==='img')row.push(P[i+1]);
+    var m=row.map(function(r){var k=Math.min(cw/r.o.w,175/r.o.h);return{r:r,w:r.o.w*k,h:r.o.h*k,c:wrap(r.a,8.5,cw).slice(0,2)}}),rh=Math.max.apply(null,m.map(function(a){return a.h+a.c.length*11+10}))+8;
+    need(rh);m.forEach(function(a,j){var x=M+j*(cw+14);draw(reg(a.r.o),x,y-a.h,a.w,a.h);a.c.forEach(function(s,l){txt(s,x,y-a.h-11-l*11,8.5,false,GR)})});y-=rh;i+=row.length}
+  else i++}
+ if(!pg)np();
+ var num=P[0]&&P[0].n||'',N=pages.length;
+ pages.forEach(function(q,k){pg=q;rect(0,H-HB,W,HB,TEAL);txt('PV Pêche  ·  Fiche de renseignements',M,H-HB+13,10,true,WH);txt(num,W-M-wd(num,true)*10,H-HB+13,10,true,WH);
+  hl(M,40,M+CW,LN,0.5);txt('Document confidentiel – données personnelles',M,28,8,false,GR);var s='Page '+(k+1)+' / '+N;txt(s,W-M-wd(s)*8,28,8,false,GR)});
+ var parts=[],len=0,offs=[];
+ function put(x){var a=x;if(typeof x==='string'){a=new Uint8Array(x.length);for(var j=0;j<x.length;j++)a[j]=x.charCodeAt(j)&255}parts.push(a);len+=a.length}
+ function obj(n,b){offs[n]=len;put(n+' 0 obj\n'+b+'\nendobj\n')}
+ var nI=IM.length,base=5+nI;
+ put('%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n');
+ obj(1,'<</Type/Catalog/Pages 2 0 R>>');
+ obj(2,'<</Type/Pages/Kids ['+pages.map(function(_,j){return(base+2*j)+' 0 R'}).join(' ')+']/Count '+N+'>>');
+ obj(3,'<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>');
+ obj(4,'<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>');
+ IM.forEach(function(o,j){var n=5+j;offs[n]=len;put(n+' 0 obj\n<</Type/XObject/Subtype/Image/Width '+o.w+'/Height '+o.h+'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+o.bytes.length+'>>\nstream\n');put(o.bytes);put('\nendstream\nendobj\n')});
+ var res='<</Font<</F1 3 0 R/F2 4 0 R>>/XObject<<'+IM.map(function(_,j){return'/Im'+j+' '+(5+j)+' 0 R'}).join('')+'>>>>';
+ pages.forEach(function(q,j){var n=base+2*j,s=q.o.join('\n');obj(n,'<</Type/Page/Parent 2 0 R/MediaBox[0 0 '+W+' '+H+']/Resources '+res+'/Contents '+(n+1)+' 0 R>>');obj(n+1,'<</Length '+s.length+'>>\nstream\n'+s+'\nendstream')});
+ var size=base+2*N,xr=len,t='xref\n0 '+size+'\n0000000000 65535 f \n';
+ for(var k=1;k<size;k++)t+=('0000000000'+offs[k]).slice(-10)+' 00000 n \n';
+ put(t+'trailer\n<</Size '+size+'/Root 1 0 R>>\nstartxref\n'+xr+'\n%%EOF');
+ return new Blob(parts,{type:'application/pdf'})}
+/* ===== Word (.docx) généré sans bibliothèque ===== */
+function crc32(b){var t=crc32.t;if(!t){t=crc32.t=[];for(var n=0,c,k;n<256;n++){c=n;for(k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}}var c2=-1;for(var i=0;i<b.length;i++)c2=t[(c2^b[i])&255]^(c2>>>8);return(c2^-1)>>>0}
+function zip(files){var enc=new TextEncoder(),parts=[],cd=[],off=0;
+ files.forEach(function(f){var nm=enc.encode(f[0]),d=typeof f[1]==='string'?enc.encode(f[1]):f[1],crc=crc32(d);
+  var h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(12,33,true);h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);parts.push(h.buffer,nm,d);
+  var c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(14,33,true);c.setUint32(16,crc,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);cd.push(c.buffer,nm);off+=30+nm.length+d.length});
+ var cs=0;cd.forEach(function(x){cs+=x.byteLength});var e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+ return new Blob(parts.concat(cd,[e.buffer]),{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})}
+function docx(P){
+ var TEAL='1E5F74',GR='5B6B72',BG='EEF3F5',LN='CBD5D9',imgs=[];
+ function X(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+ function run(t,o){o=o||{};return'<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'+(o.b?'<w:b/>':'')+(o.c?'<w:color w:val="'+o.c+'"/>':'')+'<w:sz w:val="'+(o.s||21)+'"/></w:rPr><w:t xml:space="preserve">'+X(t)+'</w:t></w:r>'}
+ function par(r,o){o=o||{};return'<w:p><w:pPr>'+(o.keep?'<w:keepNext/>':'')+(o.bd?'<w:pBdr><w:bottom w:val="single" w:sz="8" w:space="2" w:color="'+TEAL+'"/></w:pBdr>':'')+'<w:spacing w:before="'+(o.bf||0)+'" w:after="'+(o.af===undefined?100:o.af)+'" w:line="'+(o.ln||264)+'" w:lineRule="auto"/>'+(o.jc?'<w:jc w:val="'+o.jc+'"/>':'')+'</w:pPr>'+r+'</w:p>'}
+ var SP='<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="100" w:lineRule="exact"/></w:pPr></w:p>';
+ function tc(w,inner,o){o=o||{};return'<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+(o.b?'<w:tcBorders>'+o.b+'</w:tcBorders>':'')+(o.sh?'<w:shd w:val="clear" w:color="auto" w:fill="'+o.sh+'"/>':'')+'<w:vAlign w:val="'+(o.va||'top')+'"/></w:tcPr>'+inner+'</w:tc>'}
+ function tbl(cols,rows,borders){return'<w:tbl><w:tblPr><w:tblW w:w="'+cols.reduce(function(a,b){return a+b},0)+'" w:type="dxa"/>'+(borders||'')+'<w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="70" w:type="dxa"/><w:left w:w="110" w:type="dxa"/><w:bottom w:w="70" w:type="dxa"/><w:right w:w="110" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+cols.map(function(c){return'<w:gridCol w:w="'+c+'"/>'}).join('')+'</w:tblGrid>'+rows+'</w:tbl>'+SP}
+ var NOB='<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>';
+ var KVB='<w:tblBorders><w:top w:val="single" w:sz="4" w:color="'+LN+'"/><w:left w:val="nil"/><w:bottom w:val="single" w:sz="4" w:color="'+LN+'"/><w:right w:val="nil"/><w:insideH w:val="single" w:sz="4" w:color="'+LN+'"/><w:insideV w:val="nil"/></w:tblBorders>';
+ function img(o,mw,mh){imgs.push(o);var n=imgs.length,s=Math.min(mw/o.w,mh/o.h),cx=Math.round(o.w*s),cy=Math.round(o.h*s);
+  return'<w:p><w:pPr><w:spacing w:before="0" w:after="40"/><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="'+n+'" name="Image '+n+'"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="'+n+'" name="image'+n+'.jpg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId'+(n+10)+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>'}
+ var body='',i=0;
+ while(i<P.length){var p=P[i];
+  if(p.t==='title'){body+=par(run(p.a,{b:1,s:38,c:TEAL}),{af:40})+par(run(p.b,{s:21,c:GR}),{af:160,bd:1});i++}
+  else if(p.t==='sec'){body+=par(run(p.a.toUpperCase(),{b:1,s:22,c:TEAL}),{keep:1,bd:1,bf:300,af:120});i++}
+  else if(p.t==='kv'){var rows='',z=0;while(i<P.length&&P[i].t==='kv'){var q=P[i];rows+='<w:tr><w:trPr><w:cantSplit/></w:trPr>'+tc(3000,par(run(q.a,{b:1,s:19,c:GR}),{af:0}),{sh:z%2===0?BG:''})+tc(6638,par(run(q.b,{s:21}),{af:0}),{sh:z%2===0?BG:''})+'</w:tr>';z++;i++}body+=tbl([3000,6638],rows,KVB)}
+  else if(p.t==='inf'){var c=par(run('NATINF '+p.c+'   ·   '+p.k,{b:1,s:21,c:TEAL}),{af:40})+par(run(p.l,{s:21}),{af:40});p.x.forEach(function(x){c+=par(run(x,{s:18,c:GR}),{af:0})});
+    body+=tbl([9638],'<w:tr><w:trPr><w:cantSplit/></w:trPr>'+tc(9638,c,{sh:BG,b:'<w:left w:val="single" w:sz="36" w:space="0" w:color="'+TEAL+'"/>'})+'</w:tr>',NOB);i++}
+  else if(p.t==='para'){body+=par(run(p.a),{ln:300,af:120});i++}
+  else if(p.t==='sig'){var bd='<w:top w:val="single" w:sz="6" w:color="'+LN+'"/><w:left w:val="single" w:sz="6" w:color="'+LN+'"/><w:bottom w:val="single" w:sz="6" w:color="'+LN+'"/><w:right w:val="single" w:sz="6" w:color="'+LN+'"/>';
+    body+=tbl([5000],'<w:tr><w:trPr><w:cantSplit/><w:trHeight w:val="1900" w:hRule="atLeast"/></w:trPr>'+tc(5000,img(p.o,2700000,1000000),{b:bd,va:'center'})+'</w:tr>',NOB)+par(run(p.a,{s:17,c:GR}),{af:100});i++}
+  else if(p.t==='img'){var rows='';while(i<P.length&&P[i].t==='img'){var cells='';for(var j=0;j<2;j++){var q=P[i];if(q&&q.t==='img'){cells+=tc(4819,img(q.o,2900000,2300000)+par(run(q.a,{s:17,c:GR}),{af:100,jc:'center'}));i++}else cells+=tc(4819,par('',{af:0}))}rows+='<w:tr><w:trPr><w:cantSplit/></w:trPr>'+cells+'</w:tr>'}body+=tbl([4819,4819],rows,NOB)}
+  else i++}
+ var num=P[0]&&P[0].n||'',NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"',H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+ var hdr=H+'<w:hdr '+NS+'><w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="2" w:color="'+TEAL+'"/></w:pBdr><w:tabs><w:tab w:val="right" w:pos="9638"/></w:tabs><w:spacing w:after="0"/></w:pPr>'+run('PV Pêche  ·  Fiche de renseignements',{b:1,s:18,c:TEAL})+'<w:r><w:tab/></w:r>'+run(num,{b:1,s:18,c:TEAL})+'</w:p></w:hdr>';
+ function fld(c){return'<w:fldSimple w:instr=" '+c+' "><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="'+GR+'"/><w:sz w:val="16"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple>'}
+ var ftr=H+'<w:ftr '+NS+'><w:p><w:pPr><w:tabs><w:tab w:val="right" w:pos="9638"/></w:tabs><w:spacing w:after="0"/></w:pPr>'+run('Document confidentiel – données personnelles',{s:16,c:GR})+'<w:r><w:tab/></w:r>'+run('Page ',{s:16,c:GR})+fld('PAGE')+run(' / ',{s:16,c:GR})+fld('NUMPAGES')+'</w:p></w:ftr>';
+ var R='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+ var files=[
+ ['[Content_Types].xml',H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>'],
+ ['_rels/.rels',H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="'+R+'/officeDocument" Target="word/document.xml"/></Relationships>'],
+ ['word/document.xml',H+'<w:document '+NS+'><w:body>'+body+'<w:sectPr><w:headerReference w:type="default" r:id="rId1"/><w:footerReference w:type="default" r:id="rId2"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1300" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>'],
+ ['word/header1.xml',hdr],['word/footer1.xml',ftr],
+ ['word/_rels/document.xml.rels',H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="'+R+'/header" Target="header1.xml"/><Relationship Id="rId2" Type="'+R+'/footer" Target="footer1.xml"/>'+imgs.map(function(o,j){return'<Relationship Id="rId'+(j+11)+'" Type="'+R+'/image" Target="media/image'+(j+1)+'.jpg"/>'}).join('')+'</Relationships>']];
+ imgs.forEach(function(o,j){files.push(['word/media/image'+(j+1)+'.jpg',b64(o.url)])});
+ return zip(files)}
+/* ===== Archives, partage et interface ===== */
+function filtrerArc(){var t=norm($('aq').value).split(/\s+/).filter(Boolean),r=ARC.filter(function(x){var d=x.nai?x.nai.split('-'):[],s=norm(x.n+' '+x.mn+' '+x.mp+' '+x.nai+' '+(d.length>2?d[2]+'/'+d[1]+'/'+d[0]+' '+d[2]+d[1]+d[0]:''));return t.every(function(w){return s.indexOf(w)>=0})}).sort(function(a,b){return b.ts-a.ts});
+ $('acnt').textContent=(NOIDB?'Stockage indisponible ici : les fiches seront perdues à la fermeture. ':'')+(!ARC.length?'Aucune fiche archivée pour le moment.':t.length?r.length+' résultat(s) sur '+ARC.length:ARC.length+' fiche(s) archivée(s)');
+ $('alist').innerHTML=r.map(function(x){return '<button type="button" class="arc" data-id="'+esc(x.id)+'"><b>'+esc(x.n)+' · '+esc((x.mn+' '+x.mp).trim()||'Sans nom')+'</b><span>Né(e) le '+(fd(x.nai)||'—')+' · faits du '+(fd(x.df)||'—')+(x.codes?' · NATINF '+esc(x.codes):'')+'</span></button>'}).join('')}
+function onglet(t){['new','arc','set'].forEach(function(k){$('v-'+k).hidden=k!==t;$('tb-'+k).setAttribute('aria-selected',k===t)});if(t==='arc'){$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false;filtrerArc()}window.scrollTo(0,0)}
+async function ouvrir(id){var r=await getRec(id);if(!r)return;CUR=r;
+ $('adet').innerHTML='<button type="button" class="btn sec" id="aback">← Retour à la liste</button><div class="doc" id="aprev"></div><button type="button" class="btn" id="apdf">Partager / enregistrer en PDF</button><button type="button" class="btn sec" id="adl">Partager / enregistrer en Word (.docx)</button><button type="button" class="btn sec" id="adel">Supprimer cette fiche</button><p id="amsg" class="sub" style="margin-top:10px"></p>';
+ paint($('aprev'),CUR.PAR);$('asearch').hidden=true;$('alist').hidden=true;$('adet').hidden=false;window.scrollTo(0,0)}
+async function partager(f,nom,el,P){try{await DL.save({filename:nom+(f==='pdf'?'.pdf':'.docx'),data:f==='pdf'?pdf(P):docx(P)});el.textContent='Document prêt : choisissez votre messagerie pour l’envoyer.'}catch(e){el.textContent=e&&e.code==='declined'?'Partage annulé.':'Partage impossible dans cet affichage.'}}
+function saveArc(f){return partager(f,'Fiche_'+CUR.n,$('amsg'),CUR.PAR)}
+async function partagerForm(f){var r;try{r=await preparer()}catch(e){msg('Impossible de préparer le document.');return}await partager(f,'Fiche_'+r.n,$('msg'),r.PAR)}
+function delArc(b){if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmer la suppression';return}delRec(CUR.id).then(function(){arcCount();$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false;filtrerArc()})}
+async function archiverClic(){if(archived){msg('Déjà archivé sous le n° '+archived+'. Utilisez « Nouveau PV » pour en créer un autre.');return}try{var r=await preparer();msg('PV '+r.n+' archivé dans l’onglet Archives.'+(NOIDB?' Attention : stockage indisponible ici, la fiche sera perdue à la fermeture.':''))}catch(e){msg('Archivage impossible sur cet appareil.')}}
+function nouveau(){SEL={};PH=[];sigDirty=false;archived='';TYPE='';rend();prefillNum();$('apercu').hidden=true;$('act').hidden=true;msg('Nouveau formulaire prêt.')}
+function chargerReglages(){$('rg').value=GARDES.join('\n')}
+function enregistrerReglages(){var g=$('rg').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);try{localStorage.setItem('fiche_pv_gardes',JSON.stringify(g))}catch(e){$('rmsg').textContent='Enregistrement impossible sur ce téléphone.';return}GARDES=g;nouveau();$('rmsg').textContent='Réglages enregistrés (le formulaire a été remis à zéro).'}
+
+DL={save:async function(o){var f=new File([o.data],o.filename,{type:o.data.type||'application/octet-stream'});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:o.filename})}catch(e){if(e&&e.name==='AbortError'){var er=new Error('declined');er.code='declined';throw er}throw e}}
+ else{var a=document.createElement('a'),u=URL.createObjectURL(o.data);a.href=u;a.download=o.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}}};
+if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+
+$('lkf').addEventListener('submit',lkSubmit);
+$('lforgot').addEventListener('click',function(){$('lreset').hidden=!$('lreset').hidden});
+$('lwipe').addEventListener('click',effacerTout);
+$('tb-new').addEventListener('click',function(){onglet('new')});$('tb-arc').addEventListener('click',function(){onglet('arc')});$('tb-set').addEventListener('click',function(){onglet('set')});$('tb-lock').addEventListener('click',verrouiller);
+$('aq').addEventListener('input',filtrerArc);
+$('alist').addEventListener('click',function(e){var b=e.target.closest('[data-id]');if(b)ouvrir(b.dataset.id)});
+$('adet').addEventListener('click',function(e){var i=e.target.id;if(i==='aback'){$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false}else if(i==='apdf')saveArc('pdf');else if(i==='adl')saveArc('docx');else if(i==='adel')delArc(e.target)});
+$('arch').addEventListener('click',archiverClic);$('nouv').addEventListener('click',nouveau);
+$('rsave').addEventListener('click',enregistrerReglages);
+$('dl').addEventListener('click',function(){partagerForm('docx')});$('pdf').addEventListener('click',function(){partagerForm('pdf')});
+$('cp').addEventListener('click',function(){PAR=construire();(navigator.clipboard?navigator.clipboard.writeText(texte(PAR)):Promise.reject()).then(function(){msg('Texte copié.')},function(){msg('Copie impossible ici : sélectionnez le texte de l’aperçu.')})});
+$('gen').addEventListener('click',function(){PAR=construire();paint($('apercu'),PAR);$('apercu').hidden=false;$('act').hidden=false;msg('Vérifiez l’aperçu (les passages « [à compléter] » restent à renseigner), puis partagez le PDF ou le Word.');$('apercu').scrollIntoView({behavior:'smooth',block:'start'})});
+$('ex').addEventListener('click',function(){
+ var d={df:'2026-10-17',hf:'16:00',hp:'16:10',nom:'La Vienne',cat:'deuxième',lieu:'amont immédiat du pont de la RD 675, rive droite',com:'SAINT-JUNIEN (87200)',mn:'EXEMPLE',mp:'Jean',nai:'1990-05-12',nal:'Limoges',adr:'1 rue de l’Exemple, 87000 LIMOGES',tel:'06 00 00 00 00'};
+ Object.keys(d).forEach(function(k){$(k).value=d[k]});['7384','20165','20166'].forEach(function(c){SEL[c]=1});TYPE='carte';chips();filtrer();rendSel()});
+lkMode();rend();
+</script>
+</body>
+</html>

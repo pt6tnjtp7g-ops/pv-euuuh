@@ -32,13 +32,15 @@ Après 5 essais ratés, il faut attendre de plus en plus longtemps avant de rée
 
 ## Utilisation
 1. Onglet **Nouveau PV** : 5 étapes (agent verbalisateur, contrevenant, lieu et faits, reconnaissance et signature, document).
-2. À l'étape **Lieu et faits**, choisissez un **type d'infraction** : par exemple « Pêche sans carte » coche d'un coup ses 3 NATINF (vous pouvez en décocher). Vous pouvez aussi chercher par mot-clé ou par code. La liste complète n'est affichée que si vous choisissez un type ou tapez une recherche.
-3. Étape **Document** : **Générer l'aperçu**, puis **Partager / enregistrer en PDF** (ou en Word). Le téléphone ouvre sa feuille de partage : choisissez **Mail**, **Gmail**, **Outlook**… ; le document est déjà en pièce jointe, vous choisissez les destinataires. Sur ordinateur, le fichier est téléchargé.
-4. À ce moment la fiche est **archivée** avec son numéro (`PV-2026-001`…), qui ne change plus et n'est jamais réutilisé.
-5. Onglet **Archives** : recherche par n° de PV, nom, prénom ou date de naissance ; on peut y repartager le PDF ou le Word.
+2. À l'étape **Lieu et faits**, vous pouvez renseigner le lieu à la main ou toucher **Utiliser la position GPS de ce téléphone** (le téléphone demande l'autorisation de localisation, et le GPS fonctionne sans réseau). Quand le GPS est utilisé, le lieu précis et la commune sont masqués et les coordonnées figurent dans le document. Le type de milieu, son nom et la catégorie piscicole restent à saisir (la catégorie propose aussi « échappe à la réglementation »).
+3. Toujours à cette étape, le bouton **Pré-rédiger le texte à partir de la fiche** (section Constatations) écrit un premier texte avec les éléments déjà saisis : date et heure en toutes lettres, gardes, lieu ou coordonnées GPS, identité, profession, justificatif, personne présente, infractions retenues. Les passages entre crochets restent à compléter. Si vous avez déjà modifié le texte, l'application demande confirmation avant de le remplacer.
+4. Choisissez un **type d'infraction** : par exemple « Pêche sans carte » coche d'un coup ses 3 NATINF (vous pouvez en décocher). Vous pouvez aussi chercher par mot-clé ou par code. La liste complète n'est affichée que si vous choisissez un type ou tapez une recherche.
+5. Étape **Document** : **Générer l'aperçu**, puis **Partager / enregistrer en PDF** (ou en Word). Le téléphone ouvre sa feuille de partage : choisissez **Mail**, **Gmail**, **Outlook**… ; le document est déjà en pièce jointe, vous choisissez les destinataires. Sur ordinateur, le fichier est téléchargé.
+6. À ce moment la fiche est **archivée** avec son numéro (`PV-2026-001`…), qui ne change plus et n'est jamais réutilisé.
+7. Onglet **Archives** : recherche par n° de PV, nom, prénom ou date de naissance ; on peut y repartager le PDF ou le Word.
 
 ## Mettre à jour l'application
-Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (`pvpeche-v1` → `pvpeche-v2`).
+Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v2` → `pvpeche-v3`).
 Les téléphones récupèrent la mise à jour à l'ouverture suivante avec du réseau (parfois la deuxième).
 
 ## Sécurité et données personnelles : ce que fait (et ne fait pas) la connexion

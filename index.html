@@ -281,15 +281,15 @@ var TRAME='À [heure], nous observons [nombre] individu(s) se livrant à l’exe
 var GARDES=lire('fiche_pv_gardes'),SEL={},PH=[],sigDirty=false,PAR=[],DL=null,cur=1;
 var STEPS=['Agent verbalisateur','Contrevenant','Lieu et faits','Reconnaissance','Document'];
 var F=[['step',1,'Agent verbalisateur'],
-['n','N° de PV (attribué automatiquement)','text',''],['gardes','','gardes'],['g2','Autre garde (facultatif)','text','','Prénom NOM'],['res','Résidence administrative','text','Limoges (87000)'],
+['n','N° de PV (attribué automatiquement)','text',''],['gardes','','gardes'],['g2','Autre garde (facultatif)','text','','Prénom NOM'],
 ['step',2,'Contrevenant'],
-['civ','Civilité','select',['Monsieur','Madame']],['mn','Nom','text'],['mp','Prénom','text'],['nai','Date de naissance','date'],['nal','Lieu de naissance','text'],['adr','Adresse','text'],['tel','Téléphone','text'],
-['idv','Identité','select',['Renseignements fournis par le pêcheur, sans justificatif','Identité vérifiée sur pièce d’identité']],['pre','Personne présente avec lui (facultatif)','text'],
+['civ','Civilité','select',['Monsieur','Madame']],['mn','Nom','text'],['mp','Prénom','text'],['nai','Date de naissance','date'],['nal','Lieu de naissance','text'],['prof','Profession','text'],['adr','Adresse','text'],['tel','Téléphone','text'],
+['idv','Identité','select',['Renseignements fournis par le pêcheur, sans justificatif','Identité vérifiée sur pièce d’identité']],['idn','Numéro du justificatif d’identité','text'],['pre','Personne présente avec lui (facultatif)','text'],
 ['step',3,'Lieu et faits'],
 ['df','Date des faits','date'],['hf','Heure des faits','time'],['hp','Heure à laquelle le PV est dressé','time'],
-['milieu','Type de milieu','select',['cours d’eau','plan d’eau']],['nom','Nom du milieu','text','','La Vienne'],['cat','Catégorie piscicole','select',['première','deuxième']],['lieu','Lieu précis','text','','amont immédiat du pont …'],['com','Commune','text','','SAINT-JUNIEN (87200)'],
+['milieu','Type de milieu','select',['cours d’eau','plan d’eau']],['nom','Nom du milieu','text'],['cat','Catégorie piscicole','select',['première','deuxième','échappe à la réglementation']],['gps','','gps'],['lmo','','lmo'],['lieu','Lieu précis','text','','amont immédiat du pont …'],['com','Commune','text'],['lmc','','lmc'],
 ['h','Infractions relevées'],['inf','','infs'],
-['h','Constatations'],['cons','','textarea',TRAME],
+['h','Constatations'],['prebtn','','prebtn'],['cons','','textarea','','Touchez « Pré-rédiger » pour générer un premier texte à partir des éléments saisis, puis corrigez-le.'],
 ['h','Photos'],['photos','','photos'],
 ['step',4,'Reconnaissance et signature'],
 ['reco','Position du contrevenant','select',['Reconnaît les faits','Conteste les faits','Ne fait aucune déclaration']],['decl','Déclarations du contrevenant (facultatif)','textarea',''],['sig','','sign'],
@@ -301,11 +301,15 @@ function rend(){
   if(f[0]==='h'){h+='<h2>'+f[1]+'</h2>';return}
   if(f[2]==='gardes'){h+='<p class="sub" style="margin-top:12px">Gardes présents'+(GARDES.length?' (cochés par défaut)':' : à configurer dans l’onglet Réglages')+'</p>'+GARDES.map(function(g,i){return '<div class="chk"><input type="checkbox" id="gd'+i+'" data-g="'+esc(g)+'" checked><label for="gd'+i+'">'+esc(g)+'</label></div>'}).join('');return}
   if(f[2]==='infs'){h+='<label>Type d’infraction</label><div class="chips" id="tchips"></div><label for="q">Ou rechercher (mots-clés ou code NATINF)</label><input id="q" type="search" placeholder="ex. : carte, taille, brochet, arrêté, 20148"><div class="chk" style="margin-top:12px"><input type="checkbox" id="nuit"><label for="nuit"><b>Faits commis de nuit</b>Utilise le code NATINF « de nuit » quand il existe</label></div><p class="sub" id="nres" style="margin-top:12px"></p><div id="qres"></div><h2 style="border:0;padding:0;margin-top:18px">Infractions sélectionnées</h2><div id="qsel"></div>';return}
+  if(f[2]==='gps'){h+='<label>Position GPS</label><button type="button" class="btn sec" id="gps" style="margin-top:0">Utiliser la position GPS de ce téléphone</button><p class="sub" id="gpsst" style="margin:8px 0 0"></p><button type="button" class="btn sec" id="gpsoff" hidden>Revenir à la saisie manuelle du lieu</button>';return}
+  if(f[2]==='lmo'){h+='<div id="lm">';return}
+  if(f[2]==='lmc'){h+='</div>';return}
+  if(f[2]==='prebtn'){h+='<button type="button" class="btn sec" id="prebtn" style="margin-top:8px">Pré-rédiger le texte à partir de la fiche</button><p class="sub" id="prehint" style="margin:8px 0 0"></p>';return}
   if(f[2]==='sign'){h+='<label for="sig">Signature du contrevenant (au doigt ou au stylet)</label><canvas id="sig" width="640" height="240" aria-label="Zone de signature"></canvas><button type="button" class="btn sec" id="sigclr">Effacer la signature</button><div class="chk" style="margin-top:12px"><input type="checkbox" id="refus"><label for="refus">Le contrevenant refuse de signer</label></div>';return}
   if(f[2]==='photos'){h+='<label for="phin">Ajouter des photos (appareil photo ou galerie)</label><input id="phin" type="file" accept="image/*" multiple><div id="phl"></div>';return}
   h+='<label for="'+f[0]+'">'+f[1]+'</label>';
   if(f[2]==='select')h+='<select id="'+f[0]+'">'+f[3].map(function(o){return '<option>'+o+'</option>'}).join('')+'</select>';
-  else if(f[2]==='textarea')h+='<textarea id="'+f[0]+'">'+f[3]+'</textarea>';
+  else if(f[2]==='textarea')h+='<textarea id="'+f[0]+'" placeholder="'+(f[4]||'')+'">'+f[3]+'</textarea>';
   else h+='<input id="'+f[0]+'" type="'+f[2]+'" value="'+(f[3]||'')+'" placeholder="'+(f[4]||'')+'">';
  });
  $('form').innerHTML=h+'</section>';
@@ -314,7 +318,7 @@ function rend(){
  $('tchips').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(!b)return;var t=TYPS.filter(function(x){return x.id===b.dataset.t})[0];$('q').value='';
   if(t.b){var all=t.c.every(function(c){return SEL[c]});t.c.forEach(function(c){if(all)delete SEL[c];else SEL[c]=1});TYPE=t.id}else TYPE=TYPE===t.id?'':t.id;
   chips();filtrer();rendSel()});
- filtrer();rendSel();initSign();initPhotos();
+ filtrer();rendSel();initSign();initPhotos();initGps();initPre();
  if(!rend.w){rend.w=1;$('prog').addEventListener('click',function(e){var b=e.target.closest('button');if(b)etape(+b.dataset.st)});$('prev').addEventListener('click',function(){etape(cur-1)});$('next').addEventListener('click',function(){etape(cur+1)})}
  etape(1);
 }
@@ -349,9 +353,9 @@ function construire(){
  function sec(a){P.push({t:'sec',a:a})}function kv(a,b){P.push({t:'kv',a:a,b:b})}
  P.push({t:'title',a:'Fiche de renseignements pour procès-verbal',b:'N° '+n+'  ·  Faits du '+dn('df'),n:n});
  sec('Dossier');kv('N° de PV',n);kv('Date des faits',dn('df'));kv('Heure des faits',hh('hf'));kv('Heure à laquelle le PV est dressé',hh('hp'));if(nuit)kv('Faits commis de nuit','Oui');
- sec('Gardes rédacteurs');var g=gardesSel();if(!g.length)g=['[à compléter]'];g.forEach(function(x,i){kv('Garde '+(i+1),x)});kv('Résidence administrative',ok('res'));
- sec('Lieu des faits');kv('Type de milieu',v('milieu'));kv('Nom',ok('nom'));kv('Catégorie piscicole',v('cat'));kv('Lieu précis',ok('lieu'));kv('Commune',ok('com'));
- sec('Contrevenant');kv('Identité',(v('civ')+' '+ok('mn')+' '+v('mp')).trim());kv('Né(e) le',dn('nai')+' à '+ok('nal'));kv('Adresse',ok('adr'));if(v('tel'))kv('Téléphone',v('tel'));kv('Justificatif d’identité',v('idv'));if(v('pre'))kv('Personne présente',v('pre'));
+ sec('Gardes rédacteurs');var g=gardesSel();if(!g.length)g=['[à compléter]'];g.forEach(function(x,i){kv('Garde '+(i+1),x)});
+ sec('Lieu des faits');kv('Type de milieu',v('milieu'));kv('Nom',ok('nom'));kv('Catégorie piscicole',v('cat'));if(GPS)kv('Position GPS',fmtGps()+' (précision ± '+GPS.acc+' m)');else{kv('Lieu précis',ok('lieu'));kv('Commune',ok('com'))}
+ sec('Contrevenant');kv('Identité',(v('civ')+' '+ok('mn')+' '+v('mp')).trim());kv('Né(e) le',dn('nai')+' à '+ok('nal'));if(v('prof'))kv('Profession',v('prof'));kv('Adresse',ok('adr'));if(v('tel'))kv('Téléphone',v('tel'));kv('Justificatif d’identité',v('idv'));if(v('idn'))kv('N° du justificatif',v('idn'));if(v('pre'))kv('Personne présente',v('pre'));
  sec('Infractions relevées');if(!sel.length)P.push({t:'para',a:'[aucune infraction sélectionnée]'});
  sel.forEach(function(x){var nn=nuit&&x.n,k=nn?up(x.k):x.k,ex=x.r?['Prévue par : '+x.p,'Réprimée par : '+x.r]:['Article(s) : '+x.p];P.push({t:'inf',c:nn?x.n:x.c,l:x.l+(nn?' (de nuit)':''),k:k==='Délit'?'Délit':'Contravention de '+k+' classe',x:ex})});
  sec('Constatations');v('cons').split(/\n\s*\n/).filter(Boolean).forEach(function(t){P.push({t:'para',a:t.replace(/\n/g,' ')})});
@@ -372,6 +376,48 @@ function paint(a,P){a.innerHTML='';var kv=null,gr=null;
   else if(p.t==='para')a.appendChild(el('p','dp',p.a));
   else if(p.t==='sig'){var d=el('div','dsig'),im=el('img');im.src=p.o.url;im.alt=p.a;d.appendChild(im);a.appendChild(d);a.appendChild(el('small','cap',p.a))}
   else if(p.t==='img'){if(!gr){gr=el('div','dgrid');a.appendChild(gr)}var f=el('figure');var im=el('img');im.src=p.o.url;im.alt=p.a;f.appendChild(im);f.appendChild(el('figcaption',null,p.a));gr.appendChild(f)}})}
+
+/* ===== Position GPS ===== */
+var GPS=null,DRAFT='';
+function fmtGps(){return GPS.lat.toFixed(5)+', '+GPS.lon.toFixed(5)}
+function majGps(){var on=!!GPS;$('lm').hidden=on;$('gpsoff').hidden=!on;$('gps').textContent=on?'Refaire la mesure GPS':'Utiliser la position GPS de ce téléphone';$('gpsst').textContent=on?'Position enregistrée : '+fmtGps()+' (précision ± '+GPS.acc+' m). Le lieu précis et la commune sont masqués.':''}
+function initGps(){
+ $('gps').addEventListener('click',function(){
+  if(!navigator.geolocation){$('gpsst').textContent='Géolocalisation indisponible sur cet appareil : saisissez le lieu à la main.';return}
+  $('gpsst').textContent='Recherche de la position en cours…';
+  navigator.geolocation.getCurrentPosition(function(p){GPS={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};majGps()},
+   function(e){$('gpsst').textContent=e.code===1?'Autorisation refusée : autorisez la localisation pour cette application, ou saisissez le lieu à la main.':'Position introuvable : réessayez à découvert, ou saisissez le lieu à la main.'},
+   {enableHighAccuracy:true,timeout:20000,maximumAge:0})});
+ $('gpsoff').addEventListener('click',function(){GPS=null;majGps()});
+ majGps()}
+
+/* ===== Pré-rédaction des constatations ===== */
+var MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+var UN=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize','dix-sept','dix-huit','dix-neuf'],DIX=['','','vingt','trente','quarante','cinquante','soixante'];
+function nb(n){var r;if(n<20)return UN[n];if(n<70){r=n%10;return DIX[Math.floor(n/10)]+(r?(r===1?' et un':'-'+UN[r]):'')}if(n<80){r=n-60;return'soixante'+(r===11?' et onze':'-'+UN[r])}if(n<100){r=n-80;return'quatre-vingt'+(r?'-'+UN[r]:'s')}
+ if(n<1000){var h=Math.floor(n/100);r=n%100;return(h>1?UN[h]+' ':'')+'cent'+(r?' '+nb(r):(h>1?'s':''))}var t=Math.floor(n/1000);r=n%1000;return(t>1?nb(t)+' ':'')+'mille'+(r?' '+nb(r):'')}
+function dl(iso){var p=iso.split('-');return(+p[2]===1?'premier':nb(+p[2]))+' '+MOIS[+p[1]-1]+' '+nb(+p[0])}
+function hl(t){var p=t.split(':'),h=+p[0],m=+p[1];return nb(h)+' heure'+(h>1?'s':'')+(m?' et '+nb(m)+' minute'+(m>1?'s':''):'')}
+function liste(a){return a.length>1?a.slice(0,-1).join(', ')+' et '+a[a.length-1]:a[0]}
+function pre(){
+ var g=gardesSel(),pl=g.length>1,two=!!v('pre'),nuit=$('nuit').checked,sel=INF.filter(function(x){return SEL[x.c]}),P=[],c='';
+ var date=v('df')?dl(v('df')):'[date]',heure=v('hf')?hl(v('hf')):'[heure]';
+ var cat=v('cat')==='échappe à la réglementation'?', qui échappe à la réglementation':', classé en '+v('cat')+' catégorie piscicole';
+ var lieu=GPS?', au point repéré par GPS ('+fmtGps()+')':(v('com')?', commune de '+v('com'):'')+(v('lieu')?', '+v('lieu'):'');
+ P.push('Le '+date+', à '+heure+', nous, '+(g.length?liste(g):'[nom du garde]')+', '+(pl?'gardes-pêche particuliers':'garde-pêche particulier')+', contrôlons l’exercice de la pêche sur le '+v('milieu')+(v('nom')?' '+v('nom'):'')+cat+lieu+'.');
+ P.push('Nous observons '+(two?'deux individus se livrant':'un individu se livrant')+' à l’exercice de la pêche. Nous décidons de procéder à '+(two?'leur':'son')+' contrôle. Déclinant nos qualités, nous '+(two?'leur':'lui')+' demandons de nous présenter la carte de pêche pour l’année en cours.');
+ var id=(v('civ')+' '+v('mn')+' '+v('mp')).trim();
+ c='Il s’agit de '+(v('mn')?id:'[identité à compléter]')+(v('nai')?', né le '+dl(v('nai'))+(v('nal')?' à '+v('nal'):''):'')+(v('prof')?', '+v('prof'):'')+(v('adr')?', demeurant '+v('adr'):'')+'. ';
+ c+=v('idv').indexOf('vérifiée')>=0?'Son identité est vérifiée sur présentation d’un justificatif'+(v('idn')?' (n° '+v('idn')+')':'')+'.':'Les renseignements d’identité sont fournis par l’intéressé, sans justificatif'+(v('idn')?' (n° indiqué : '+v('idn')+')':'')+'.';
+ if(two)c+=' Il pêchait en compagnie de '+v('pre')+'.';
+ P.push(c);
+ if(sel.length)P.push('Les faits constatés sont susceptibles de constituer : '+sel.map(function(x){var n=nuit&&x.n,l=x.l.charAt(0).toLowerCase()+x.l.slice(1);return l+(n?' (de nuit)':'')+' (NATINF '+(n?x.n:x.c)+')'}).join(' ; ')+'.');
+ P.push('[Précisez les faits constatés et la réponse du pêcheur.]');
+ P.push('[Le pêcheur reconnaît ou conteste les faits.] Nous lui dressons procès-verbal'+(v('hp')?' à '+hl(v('hp')):'')+'.');
+ return P.join('\n\n')}
+function initPre(){$('prebtn').addEventListener('click',function(){var t=$('cons').value.trim();
+ if(t&&t!==DRAFT&&!this.dataset.ok){this.dataset.ok=1;this.textContent='Confirmer : remplacer mon texte par le brouillon';return}
+ DRAFT=pre();$('cons').value=DRAFT;delete this.dataset.ok;this.textContent='Pré-rédiger le texte à partir de la fiche';$('prehint').textContent='Brouillon généré : relisez-le, complétez les passages entre crochets et corrigez-le si besoin.'})}
 /* ===== PDF (généré sans bibliothèque) ===== */
 var HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
 function pdf(P){
@@ -486,7 +532,7 @@ function saveArc(f){return partager(f,'Fiche_'+CUR.n,$('amsg'),CUR.PAR)}
 async function partagerForm(f){var r;try{r=await preparer()}catch(e){msg('Impossible de préparer le document.');return}await partager(f,'Fiche_'+r.n,$('msg'),r.PAR)}
 function delArc(b){if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmer la suppression';return}delRec(CUR.id).then(function(){arcCount();$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false;filtrerArc()})}
 async function archiverClic(){if(archived){msg('Déjà archivé sous le n° '+archived+'. Utilisez « Nouveau PV » pour en créer un autre.');return}try{var r=await preparer();msg('PV '+r.n+' archivé dans l’onglet Archives.'+(NOIDB?' Attention : stockage indisponible ici, la fiche sera perdue à la fermeture.':''))}catch(e){msg('Archivage impossible sur cet appareil.')}}
-function nouveau(){SEL={};PH=[];sigDirty=false;archived='';TYPE='';rend();prefillNum();$('apercu').hidden=true;$('act').hidden=true;msg('Nouveau formulaire prêt.')}
+function nouveau(){SEL={};PH=[];sigDirty=false;archived='';TYPE='';GPS=null;DRAFT='';rend();prefillNum();$('apercu').hidden=true;$('act').hidden=true;msg('Nouveau formulaire prêt.')}
 function chargerReglages(){$('rg').value=GARDES.join('\n')}
 function enregistrerReglages(){var g=$('rg').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);try{localStorage.setItem('fiche_pv_gardes',JSON.stringify(g))}catch(e){$('rmsg').textContent='Enregistrement impossible sur ce téléphone.';return}GARDES=g;nouveau();$('rmsg').textContent='Réglages enregistrés (le formulaire a été remis à zéro).'}
 
@@ -508,7 +554,7 @@ $('dl').addEventListener('click',function(){partagerForm('docx')});$('pdf').addE
 $('cp').addEventListener('click',function(){PAR=construire();(navigator.clipboard?navigator.clipboard.writeText(texte(PAR)):Promise.reject()).then(function(){msg('Texte copié.')},function(){msg('Copie impossible ici : sélectionnez le texte de l’aperçu.')})});
 $('gen').addEventListener('click',function(){PAR=construire();paint($('apercu'),PAR);$('apercu').hidden=false;$('act').hidden=false;msg('Vérifiez l’aperçu (les passages « [à compléter] » restent à renseigner), puis partagez le PDF ou le Word.');$('apercu').scrollIntoView({behavior:'smooth',block:'start'})});
 $('ex').addEventListener('click',function(){
- var d={df:'2026-10-17',hf:'16:00',hp:'16:10',nom:'La Vienne',cat:'deuxième',lieu:'amont immédiat du pont de la RD 675, rive droite',com:'SAINT-JUNIEN (87200)',mn:'EXEMPLE',mp:'Jean',nai:'1990-05-12',nal:'Limoges',adr:'1 rue de l’Exemple, 87000 LIMOGES',tel:'06 00 00 00 00'};
+ var d={df:'2026-10-17',hf:'16:00',hp:'16:10',nom:'Rivière exemple',cat:'deuxième',lieu:'amont immédiat du pont, rive droite',com:'COMMUNE EXEMPLE',prof:'Profession exemple',idn:'0000000000',mn:'EXEMPLE',mp:'Jean',nai:'1990-05-12',nal:'Limoges',adr:'1 rue de l’Exemple, 87000 LIMOGES',tel:'06 00 00 00 00'};
  Object.keys(d).forEach(function(k){$(k).value=d[k]});['7384','20165','20166'].forEach(function(c){SEL[c]=1});TYPE='carte';chips();filtrer();rendSel()});
 lkMode();rend();
 </script>

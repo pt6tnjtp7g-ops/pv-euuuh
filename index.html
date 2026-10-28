@@ -301,7 +301,7 @@ function rend(){
   if(f[0]==='h'){h+='<h2>'+f[1]+'</h2>';return}
   if(f[2]==='gardes'){h+='<p class="sub" style="margin-top:12px">Gardes présents'+(GARDES.length?' (cochés par défaut)':' : à configurer dans l’onglet Réglages')+'</p>'+GARDES.map(function(g,i){return '<div class="chk"><input type="checkbox" id="gd'+i+'" data-g="'+esc(g)+'" checked><label for="gd'+i+'">'+esc(g)+'</label></div>'}).join('');return}
   if(f[2]==='infs'){h+='<label>Type d’infraction</label><div class="chips" id="tchips"></div><label for="q">Ou rechercher (mots-clés ou code NATINF)</label><input id="q" type="search" placeholder="ex. : carte, taille, brochet, arrêté, 20148"><div class="chk" style="margin-top:12px"><input type="checkbox" id="nuit"><label for="nuit"><b>Faits commis de nuit</b>Utilise le code NATINF « de nuit » quand il existe</label></div><p class="sub" id="nres" style="margin-top:12px"></p><div id="qres"></div><h2 style="border:0;padding:0;margin-top:18px">Infractions sélectionnées</h2><div id="qsel"></div>';return}
-  if(f[2]==='gps'){h+='<label>Position GPS</label><button type="button" class="btn sec" id="gps" style="margin-top:0">Utiliser la position GPS de ce téléphone</button><p class="sub" id="gpsst" style="margin:8px 0 0"></p><button type="button" class="btn sec" id="gpsoff" hidden>Revenir à la saisie manuelle du lieu</button>';return}
+  if(f[2]==='gps'){h+='<label>Position GPS</label><button type="button" class="btn sec" id="gps" style="margin-top:0">Utiliser la position GPS de ce téléphone</button><p class="sub" id="gpsst" style="margin:8px 0 0"></p><div id="geores"></div><button type="button" class="btn sec" id="gpsretry" hidden>Compléter le lieu et la carte</button><button type="button" class="btn sec" id="gpsoff" hidden>Revenir à la saisie manuelle du lieu</button>';return}
   if(f[2]==='lmo'){h+='<div id="lm">';return}
   if(f[2]==='lmc'){h+='</div>';return}
   if(f[2]==='prebtn'){h+='<button type="button" class="btn sec" id="prebtn" style="margin-top:8px">Pré-rédiger le texte à partir de la fiche</button><p class="sub" id="prehint" style="margin:8px 0 0"></p>';return}
@@ -354,7 +354,7 @@ function construire(){
  P.push({t:'title',a:'Fiche de renseignements pour procès-verbal',b:'N° '+n+'  ·  Faits du '+dn('df'),n:n});
  sec('Dossier');kv('N° de PV',n);kv('Date des faits',dn('df'));kv('Heure des faits',hh('hf'));kv('Heure à laquelle le PV est dressé',hh('hp'));if(nuit)kv('Faits commis de nuit','Oui');
  sec('Gardes rédacteurs');var g=gardesSel();if(!g.length)g=['[à compléter]'];g.forEach(function(x,i){kv('Garde '+(i+1),x)});
- sec('Lieu des faits');kv('Type de milieu',v('milieu'));kv('Nom',ok('nom'));kv('Catégorie piscicole',v('cat'));if(GPS)kv('Position GPS',fmtGps()+' (précision ± '+GPS.acc+' m)');else{kv('Lieu précis',ok('lieu'));kv('Commune',ok('com'))}
+ sec('Lieu des faits');kv('Type de milieu',v('milieu'));kv('Nom',ok('nom'));kv('Catégorie piscicole',v('cat'));if(GPS){kv('Position GPS',fmtGps()+' (précision ± '+GPS.acc+' m)');if(GEO){if(GEO.commune)kv('Commune',GEO.commune+(GEO.cp?' ('+GEO.cp+')':'')+(GEO.dep?' – '+GEO.dep:''));if(GEO.adr)kv('Adresse la plus proche',GEO.adr+(GEO.adrD!=null?' (à environ '+GEO.adrD+' m)':''));if(GEO.poi)kv('Lieu nommé proche',GEO.poi+(GEO.poiD!=null?' (à environ '+GEO.poiD+' m)':''));GEO.maps.forEach(function(m){P.push({t:'img',a:m.a,o:m.o})})}}else{kv('Lieu précis',ok('lieu'));kv('Commune',ok('com'))}
  sec('Contrevenant');kv('Identité',(v('civ')+' '+ok('mn')+' '+v('mp')).trim());kv('Né(e) le',dn('nai')+' à '+ok('nal'));if(v('prof'))kv('Profession',v('prof'));kv('Adresse',ok('adr'));if(v('tel'))kv('Téléphone',v('tel'));kv('Justificatif d’identité',v('idv'));if(v('idn'))kv('N° du justificatif',v('idn'));if(v('pre'))kv('Personne présente',v('pre'));
  sec('Infractions relevées');if(!sel.length)P.push({t:'para',a:'[aucune infraction sélectionnée]'});
  sel.forEach(function(x){var nn=nuit&&x.n,k=nn?up(x.k):x.k,ex=x.r?['Prévue par : '+x.p,'Réprimée par : '+x.r]:['Article(s) : '+x.p];P.push({t:'inf',c:nn?x.n:x.c,l:x.l+(nn?' (de nuit)':''),k:k==='Délit'?'Délit':'Contravention de '+k+' classe',x:ex})});
@@ -380,15 +380,16 @@ function paint(a,P){a.innerHTML='';var kv=null,gr=null;
 /* ===== Position GPS ===== */
 var GPS=null,DRAFT='';
 function fmtGps(){return GPS.lat.toFixed(5)+', '+GPS.lon.toFixed(5)}
-function majGps(){var on=!!GPS;$('lm').hidden=on;$('gpsoff').hidden=!on;$('gps').textContent=on?'Refaire la mesure GPS':'Utiliser la position GPS de ce téléphone';$('gpsst').textContent=on?'Position enregistrée : '+fmtGps()+' (précision ± '+GPS.acc+' m). Le lieu précis et la commune sont masqués.':''}
+function majGps(){var on=!!GPS;$('lm').hidden=on;$('gpsoff').hidden=!on;$('gps').textContent=on?'Refaire la mesure GPS':'Utiliser la position GPS de ce téléphone';$('gpsst').textContent=on?'Position enregistrée : '+fmtGps()+' (précision ± '+GPS.acc+' m). Le lieu précis et la commune saisis à la main sont masqués.':''}
 function initGps(){
  $('gps').addEventListener('click',function(){
   if(!navigator.geolocation){$('gpsst').textContent='Géolocalisation indisponible sur cet appareil : saisissez le lieu à la main.';return}
   $('gpsst').textContent='Recherche de la position en cours…';
-  navigator.geolocation.getCurrentPosition(function(p){GPS={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};majGps()},
+  navigator.geolocation.getCurrentPosition(function(p){GPS={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};majGps();geoStart()},
    function(e){$('gpsst').textContent=e.code===1?'Autorisation refusée : autorisez la localisation pour cette application, ou saisissez le lieu à la main.':'Position introuvable : réessayez à découvert, ou saisissez le lieu à la main.'},
    {enableHighAccuracy:true,timeout:20000,maximumAge:0})});
- $('gpsoff').addEventListener('click',function(){GPS=null;majGps()});
+ $('gpsoff').addEventListener('click',function(){GPS=null;GEO=null;majGps();geoUi()});
+ $('gpsretry').addEventListener('click',geoStart);
  majGps()}
 
 /* ===== Pré-rédaction des constatations ===== */
@@ -403,7 +404,7 @@ function pre(){
  var g=gardesSel(),pl=g.length>1,two=!!v('pre'),nuit=$('nuit').checked,sel=INF.filter(function(x){return SEL[x.c]}),P=[],c='';
  var date=v('df')?dl(v('df')):'[date]',heure=v('hf')?hl(v('hf')):'[heure]';
  var cat=v('cat')==='échappe à la réglementation'?', qui échappe à la réglementation':', classé en '+v('cat')+' catégorie piscicole';
- var lieu=GPS?', au point repéré par GPS ('+fmtGps()+')':(v('com')?', commune de '+v('com'):'')+(v('lieu')?', '+v('lieu'):'');
+ var lieu=GPS?(GEO&&GEO.commune?', commune de '+GEO.commune:'')+', au point repéré par GPS ('+fmtGps()+')'+(GEO&&GEO.adr?', à proximité de '+GEO.adr:''):(v('com')?', commune de '+v('com'):'')+(v('lieu')?', '+v('lieu'):'');
  P.push('Le '+date+', à '+heure+', nous, '+(g.length?liste(g):'[nom du garde]')+', '+(pl?'gardes-pêche particuliers':'garde-pêche particulier')+', contrôlons l’exercice de la pêche sur le '+v('milieu')+(v('nom')?' '+v('nom'):'')+cat+lieu+'.');
  P.push('Nous observons '+(two?'deux individus se livrant':'un individu se livrant')+' à l’exercice de la pêche. Nous décidons de procéder à '+(two?'leur':'son')+' contrôle. Déclinant nos qualités, nous '+(two?'leur':'lui')+' demandons de nous présenter la carte de pêche pour l’année en cours.');
  var id=(v('civ')+' '+v('mn')+' '+v('mp')).trim();
@@ -418,6 +419,56 @@ function pre(){
 function initPre(){$('prebtn').addEventListener('click',function(){var t=$('cons').value.trim();
  if(t&&t!==DRAFT&&!this.dataset.ok){this.dataset.ok=1;this.textContent='Confirmer : remplacer mon texte par le brouillon';return}
  DRAFT=pre();$('cons').value=DRAFT;delete this.dataset.ok;this.textContent='Pré-rédiger le texte à partir de la fiche';$('prehint').textContent='Brouillon généré : relisez-le, complétez les passages entre crochets et corrigez-le si besoin.'})}
+/* ===== Lieu précis et cartes à partir du GPS (nécessite du réseau ; les coordonnées, elles, sont toujours enregistrées) ===== */
+var GEO=null;
+var SRC=[
+ {n:'IGN',att:'© IGN – cartes.gouv.fr',u:function(z,x,y){return 'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX='+z+'&TILEROW='+y+'&TILECOL='+x}}];
+/* Source de secours (désactivée par défaut : n'utilise que des services publics français) :
+   {n:'OpenStreetMap',att:'© contributeurs OpenStreetMap',u:function(z,x,y){return 'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png'}} */
+function hav(a,b,c,d){var R=6371000,t=Math.PI/180,x=(c-a)*t,y=(d-b)*t,s=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*t)*Math.cos(c*t)*Math.sin(y/2)*Math.sin(y/2);return 2*R*Math.asin(Math.sqrt(s))}
+function tj(url){var c=new AbortController(),t=setTimeout(function(){c.abort()},10000);return fetch(url,{signal:c.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw new Error('http '+r.status);return r.json()},function(e){clearTimeout(t);throw e})}
+function proche(j,lat,lon){var f=j&&j.features&&j.features[0];if(!f)return null;var p=f.properties||{},g=f.geometry&&f.geometry.coordinates;return{p:p,d:g?Math.round(hav(lat,lon,g[1],g[0])):(typeof p.distance==='number'?Math.round(p.distance):null)}}
+function tuile(u){return new Promise(function(res,rej){var im=new Image(),t=setTimeout(function(){rej(new Error('délai'))},12000);im.crossOrigin='anonymous';im.onload=function(){clearTimeout(t);res(im)};im.onerror=function(){clearTimeout(t);rej(new Error('tuile'))};im.src=u})}
+function bel(m){var a=[10,20,50,100,200,500,1000,2000,5000,10000];for(var i=0;i<a.length;i++){if(a[i]/m>=70)return a[i]}return a[a.length-1]}
+async function carte(src,g,z,W,H){
+ var n=Math.pow(2,z),t=Math.PI/180,fx=(g.lon+180)/360*n,fy=(1-Math.log(Math.tan(g.lat*t)+1/Math.cos(g.lat*t))/Math.PI)/2*n,px=fx*256,py=fy*256,left=px-W/2,top=py-H/2;
+ var x0=Math.floor(left/256),x1=Math.floor((left+W-1)/256),y0=Math.max(0,Math.floor(top/256)),y1=Math.min(n-1,Math.floor((top+H-1)/256)),jobs=[];
+ for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)jobs.push((function(x,y){return tuile(src.u(z,((x%n)+n)%n,y)).then(function(im){return{im:im,x:x,y:y}})})(x,y));
+ var tl=await Promise.all(jobs),c=document.createElement('canvas');c.width=W;c.height=H;var k=c.getContext('2d');k.fillStyle='#e8e8e8';k.fillRect(0,0,W,H);
+ tl.forEach(function(q){k.drawImage(q.im,q.x*256-left,q.y*256-top,256,256)});
+ var mpp=156543.03392*Math.cos(g.lat*t)/n,r=g.acc/mpp,cx=W/2,cy=H/2;
+ if(r>14){k.beginPath();k.arc(cx,cy,Math.min(r,Math.min(W,H)/2-6),0,7);k.fillStyle='rgba(30,95,200,.15)';k.fill();k.lineWidth=2;k.strokeStyle='rgba(30,95,200,.75)';k.stroke()}
+ k.beginPath();k.arc(cx,cy,11,0,7);k.fillStyle='#D7263D';k.fill();k.lineWidth=3.5;k.strokeStyle='#fff';k.stroke();k.beginPath();k.arc(cx,cy,3.5,0,7);k.fillStyle='#fff';k.fill();
+ var m=bel(mpp),L=m/mpp,lab=m>=1000?(m/1000)+' km':m+' m';k.fillStyle='rgba(255,255,255,.85)';k.fillRect(W-L-26,H-34,L+20,26);k.fillStyle='#111';k.fillRect(W-L-16,H-16,L,3);k.fillRect(W-L-16,H-21,2,8);k.fillRect(W-18,H-21,2,8);k.font='bold 12px Arial';k.textAlign='center';k.fillText(lab,W-16-L/2,H-24);
+ k.textAlign='left';k.font='11px Arial';var tw=k.measureText(src.att).width;k.fillStyle='rgba(255,255,255,.85)';k.fillRect(0,H-20,tw+12,20);k.fillStyle='#222';k.fillText(src.att,6,H-6);
+ return c.toDataURL('image/jpeg',0.82)}
+async function cartes(g){
+ var z=g.acc>200?15:g.acc>60?16:17;
+ for(var i=0;i<SRC.length;i++){try{var a=await carte(SRC[i],g,z,640,400),b=await carte(SRC[i],g,z-3,640,400);
+  return[{a:'Carte ('+SRC[i].n+') – vue rapprochée',o:{url:a,w:640,h:400}},{a:'Carte ('+SRC[i].n+') – vue d’ensemble',o:{url:b,w:640,h:400}}]}catch(e){}}
+ return[]}
+async function resoudre(g){
+ var q='lon='+g.lon+'&lat='+g.lat,r={commune:'',cp:'',dep:'',adr:'',adrD:null,poi:'',poiD:null,maps:[],done:false};
+ var res=await Promise.all([
+  tj('https://geo.api.gouv.fr/communes?lat='+g.lat+'&lon='+g.lon+'&fields=nom,code,codesPostaux,departement&format=json').catch(function(){return null}),
+  tj('https://data.geopf.fr/geocodage/reverse?'+q+'&index=address&limit=1').catch(function(){return null}),
+  tj('https://data.geopf.fr/geocodage/reverse?'+q+'&index=poi&limit=1').catch(function(){return null}),
+  cartes(g).catch(function(){return[]})]);
+ var c=res[0]&&res[0][0];if(c){r.commune=c.nom||'';r.cp=(c.codesPostaux||[])[0]||'';r.dep=c.departement?c.departement.nom+' ('+c.departement.code+')':''}
+ var a=proche(res[1],g.lat,g.lon);if(a){r.adr=a.p.label||[a.p.housenumber,a.p.street,a.p.postcode,a.p.city].filter(Boolean).join(' ');r.adrD=a.d;if(!r.commune&&a.p.city){r.commune=a.p.city;r.cp=a.p.postcode||''}}
+ var o=proche(res[2],g.lat,g.lon);if(o&&o.d!=null&&o.d<=500){r.poi=o.p.toponym||o.p.name||o.p.label||'';r.poiD=o.d}
+ r.maps=res[3];r.done=!!(r.commune||r.adr||r.maps.length);return r}
+function geoStart(){var snap=GPS;GEO=null;$('gpsretry').hidden=true;$('geores').textContent='Recherche de la commune, du lieu et de la carte…';
+ resoudre(snap).then(function(r){if(GPS===snap){GEO=r;geoUi()}},function(){if(GPS===snap){GEO=null;geoUi()}})}
+function geoUi(){var d=$('geores');d.innerHTML='';$('gpsretry').hidden=true;if(!GPS)return;
+ if(!GEO||!GEO.done){d.textContent='Coordonnées enregistrées. Commune, adresse proche et carte indisponibles (hors connexion ?).';$('gpsretry').hidden=false;return}
+ var l=[];if(GEO.commune)l.push('Commune : '+GEO.commune+(GEO.cp?' ('+GEO.cp+')':'')+(GEO.dep?' – '+GEO.dep:''));
+ if(GEO.adr)l.push('Adresse la plus proche : '+GEO.adr+(GEO.adrD!=null?' (à environ '+GEO.adrD+' m)':''));
+ if(GEO.poi)l.push('Lieu nommé proche : '+GEO.poi+(GEO.poiD!=null?' (à environ '+GEO.poiD+' m)':''));
+ l.forEach(function(t){d.appendChild(el('p','sub',t)).style.margin='6px 0 0'});
+ if(GEO.maps.length){var gr=el('div');gr.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px';GEO.maps.forEach(function(m){var f=el('figure');f.style.margin='0';var im=el('img');im.src=m.o.url;im.alt=m.a;im.style.cssText='width:100%;display:block;border-radius:4px';f.appendChild(im);var c=el('figcaption',null,m.a);c.style.cssText='font-size:12px;color:var(--muted)';f.appendChild(c);gr.appendChild(f)});d.appendChild(gr)}
+ else d.appendChild(el('p','sub','Carte indisponible pour le moment.')).style.margin='6px 0 0';
+ if(!GEO.maps.length||!GEO.commune)$('gpsretry').hidden=false}
 /* ===== PDF (généré sans bibliothèque) ===== */
 var HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
 function pdf(P){
@@ -452,7 +503,7 @@ function pdf(P){
   else if(p.t==='sig'){var bw=250,bh=105;need(bh+34);y-=10+bh;box(M,y,bw,bh,LN,0.8);var k=Math.min((bw-14)/p.o.w,(bh-14)/p.o.h),w=p.o.w*k,h=p.o.h*k;draw(reg(p.o),M+(bw-w)/2,y+(bh-h)/2,w,h);y-=13;txt(p.a,M,y,8.5,false,GR);y-=8;i++}
   else if(p.t==='img'){var cw=(CW-14)/2,row=[P[i]];if(P[i+1]&&P[i+1].t==='img')row.push(P[i+1]);
     var m=row.map(function(r){var k=Math.min(cw/r.o.w,175/r.o.h);return{r:r,w:r.o.w*k,h:r.o.h*k,c:wrap(r.a,8.5,cw).slice(0,2)}}),rh=Math.max.apply(null,m.map(function(a){return a.h+a.c.length*11+10}))+8;
-    need(rh);m.forEach(function(a,j){var x=M+j*(cw+14);draw(reg(a.r.o),x,y-a.h,a.w,a.h);a.c.forEach(function(s,l){txt(s,x,y-a.h-11-l*11,8.5,false,GR)})});y-=rh;i+=row.length}
+    need(rh+6);y-=6;m.forEach(function(a,j){var x=M+j*(cw+14);draw(reg(a.r.o),x,y-a.h,a.w,a.h);a.c.forEach(function(s,l){txt(s,x,y-a.h-11-l*11,8.5,false,GR)})});y-=rh;i+=row.length}
   else i++}
  if(!pg)np();
  var num=P[0]&&P[0].n||'',N=pages.length;
@@ -532,7 +583,7 @@ function saveArc(f){return partager(f,'Fiche_'+CUR.n,$('amsg'),CUR.PAR)}
 async function partagerForm(f){var r;try{r=await preparer()}catch(e){msg('Impossible de préparer le document.');return}await partager(f,'Fiche_'+r.n,$('msg'),r.PAR)}
 function delArc(b){if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Confirmer la suppression';return}delRec(CUR.id).then(function(){arcCount();$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false;filtrerArc()})}
 async function archiverClic(){if(archived){msg('Déjà archivé sous le n° '+archived+'. Utilisez « Nouveau PV » pour en créer un autre.');return}try{var r=await preparer();msg('PV '+r.n+' archivé dans l’onglet Archives.'+(NOIDB?' Attention : stockage indisponible ici, la fiche sera perdue à la fermeture.':''))}catch(e){msg('Archivage impossible sur cet appareil.')}}
-function nouveau(){SEL={};PH=[];sigDirty=false;archived='';TYPE='';GPS=null;DRAFT='';rend();prefillNum();$('apercu').hidden=true;$('act').hidden=true;msg('Nouveau formulaire prêt.')}
+function nouveau(){SEL={};PH=[];sigDirty=false;archived='';TYPE='';GPS=null;GEO=null;DRAFT='';rend();prefillNum();$('apercu').hidden=true;$('act').hidden=true;msg('Nouveau formulaire prêt.')}
 function chargerReglages(){$('rg').value=GARDES.join('\n')}
 function enregistrerReglages(){var g=$('rg').value.split('\n').map(function(x){return x.trim()}).filter(Boolean);try{localStorage.setItem('fiche_pv_gardes',JSON.stringify(g))}catch(e){$('rmsg').textContent='Enregistrement impossible sur ce téléphone.';return}GARDES=g;nouveau();$('rmsg').textContent='Réglages enregistrés (le formulaire a été remis à zéro).'}
 

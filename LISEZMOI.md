@@ -33,6 +33,7 @@ Après 5 essais ratés, il faut attendre de plus en plus longtemps avant de rée
 ## Utilisation
 1. Onglet **Nouveau PV** : 5 étapes (agent verbalisateur, contrevenant, lieu et faits, reconnaissance et signature, document).
 2. À l'étape **Lieu et faits**, vous pouvez renseigner le lieu à la main ou toucher **Utiliser la position GPS de ce téléphone** (le téléphone demande l'autorisation de localisation, et le GPS fonctionne sans réseau). Quand le GPS est utilisé, le lieu précis et la commune sont masqués et les coordonnées figurent dans le document. Le type de milieu, son nom et la catégorie piscicole restent à saisir (la catégorie propose aussi « échappe à la réglementation »).
+   **Lieu précis et cartes automatiques :** après la mesure, si le téléphone a du réseau, l'application cherche toute seule la **commune** (service geo.api.gouv.fr), l'**adresse la plus proche** et le **lieu nommé le plus proche** (géocodage de la Géoplateforme de l'IGN, le service de cartes.gouv.fr), et fabrique **deux cartes** avec un repère rouge et une échelle : une vue rapprochée (environ 500 m de large) et une vue d'ensemble (environ 4 km), à partir du Plan IGN. Le cercle bleu autour du repère représente la précision du GPS. Tout cela est ajouté au document. Sans réseau, seules les coordonnées sont enregistrées ; le bouton **Compléter le lieu et la carte** permet de réessayer plus tard, avant de générer le document. Seules les coordonnées du lieu sont envoyées à ces services publics (aucun nom, aucune identité).
 3. Toujours à cette étape, le bouton **Pré-rédiger le texte à partir de la fiche** (section Constatations) écrit un premier texte avec les éléments déjà saisis : date et heure en toutes lettres, gardes, lieu ou coordonnées GPS, identité, profession, justificatif, personne présente, infractions retenues. Les passages entre crochets restent à compléter. Si vous avez déjà modifié le texte, l'application demande confirmation avant de le remplacer.
 4. Choisissez un **type d'infraction** : par exemple « Pêche sans carte » coche d'un coup ses 3 NATINF (vous pouvez en décocher). Vous pouvez aussi chercher par mot-clé ou par code. La liste complète n'est affichée que si vous choisissez un type ou tapez une recherche.
 5. Étape **Document** : **Générer l'aperçu**, puis **Partager / enregistrer en PDF** (ou en Word). Le téléphone ouvre sa feuille de partage : choisissez **Mail**, **Gmail**, **Outlook**… ; le document est déjà en pièce jointe, vous choisissez les destinataires. Sur ordinateur, le fichier est téléchargé.
@@ -40,7 +41,7 @@ Après 5 essais ratés, il faut attendre de plus en plus longtemps avant de rée
 7. Onglet **Archives** : recherche par n° de PV, nom, prénom ou date de naissance ; on peut y repartager le PDF ou le Word.
 
 ## Mettre à jour l'application
-Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v2` → `pvpeche-v3`).
+Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v3` → `pvpeche-v4`).
 Les téléphones récupèrent la mise à jour à l'ouverture suivante avec du réseau (parfois la deuxième).
 
 ## Sécurité et données personnelles : ce que fait (et ne fait pas) la connexion
@@ -58,6 +59,7 @@ Les téléphones récupèrent la mise à jour à l'ouverture suivante avec du r�
 - La formulation des libellés est abrégée ; seuls les trois premiers codes ont leurs textes « prévue par / réprimée par » complets.
 
 ## Limites connues
+- **Cartes et lieu précis :** testés avec des services simulés, **pas contre les vrais serveurs** (mon environnement n'a pas accès au réseau). Si les cartes de l'IGN refusaient d'être utilisées par l'application (restriction technique des navigateurs), la commune et l'adresse s'afficheraient quand même mais les cartes seraient indisponibles : il suffit alors de le signaler, une source de secours existe (OpenStreetMap, volontairement désactivée pour n'utiliser que des services publics français).
 - Testé dans un navigateur de test (connexion, verrouillage, types d'infraction, recherche, signature, photos, archives chiffrées, PDF, Word, mode hors connexion), **pas sur de vrais iPhone et Android**. Sur iPhone, le partage doit être déclenché par un appui direct : si rien ne s'ouvre, réessayez.
 - Pas de sauvegarde/export des archives, ni de changement de mot de passe (pour l'instant).
 - Pas de publication dans l'App Store / Google Play (compte développeur payant et validation par Apple/Google, possible plus tard).

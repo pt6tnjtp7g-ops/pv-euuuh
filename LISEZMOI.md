@@ -40,8 +40,13 @@ Après 5 essais ratés, il faut attendre de plus en plus longtemps avant de rée
 6. À ce moment la fiche est **archivée** avec son numéro (`PV-2026-001`…), qui ne change plus et n'est jamais réutilisé.
 7. Onglet **Archives** : recherche par n° de PV, nom, prénom ou date de naissance ; on peut y repartager le PDF ou le Word.
 
+## Icône de l'application
+L'icône (logo « Police de la pêche – PV GPP87 ») est fournie en quatre tailles : `apple-touch-icon.png` (iPhone), `icon-192.png` et `icon-512.png` (Android, coins arrondis transparents) et `icon-maskable-512.png` (Android, version adaptée aux icônes rondes ou carrées arrondies).
+**Pour voir la nouvelle icône sur un téléphone où l'application est déjà installée** : mettez à jour les fichiers sur GitHub, puis supprimez l'icône de l'écran d'accueil et réinstallez l'application (l'iPhone garde l'ancienne icône tant qu'on ne la réinstalle pas ; Android la met souvent à jour seul).
+**Attention :** supprimer l'application de l'écran d'accueil peut effacer ses données, archives comprises. Avant de le faire, vérifiez que tous vos PV ont bien été envoyés par e-mail.
+
 ## Mettre à jour l'application
-Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v3` → `pvpeche-v4`).
+Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v4` → `pvpeche-v5`).
 Les téléphones récupèrent la mise à jour à l'ouverture suivante avec du réseau (parfois la deuxième).
 
 ## Sécurité et données personnelles : ce que fait (et ne fait pas) la connexion

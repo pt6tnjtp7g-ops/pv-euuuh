@@ -1,6 +1,6 @@
 // Service worker : met l'application en cache pour qu'elle s'ouvre sans réseau.
 // À chaque mise à jour de l'application, changez le numéro de version ci-dessous.
-const VERSION = 'pvpeche-v3';
+const VERSION = 'pvpeche-v4';
 const FICHIERS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

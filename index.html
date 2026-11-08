@@ -10,7 +10,7 @@
 @media (prefers-color-scheme:dark){:root{--encre:#E7EEF8;--fond:#0A1427;--surf:#122140;--ligne:#2A3F66;--eau:#5EB8F8;--surf-eau:#17305C;--alerte:#FF8F78;--muted:#9FB2CF;color-scheme:dark}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--fond);color:var(--encre);font:400 17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:640px;margin:0 auto;padding:16px 16px 48px}
+main{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 34px) 16px 48px}
 h1{font-size:24px;margin:8px 0 4px}h2{font-size:18px;margin:26px 0 4px;padding-top:14px;border-top:1px solid var(--ligne)}.et{border:0;padding:0;margin:12px 0 0}
 .sub{color:var(--muted);margin:0 0 16px}
 label{display:block;font-weight:700;margin:14px 0 4px}
@@ -60,7 +60,6 @@ canvas#sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:
 <div class="tabs" role="tablist"><button type="button" role="tab" id="tb-new" aria-selected="true">Nouveau PV</button><button type="button" role="tab" id="tb-arc" aria-selected="false">Archives</button><button type="button" role="tab" id="tb-set" aria-selected="false">Réglages</button><button type="button" id="tb-lock" aria-label="Verrouiller l’application" title="Verrouiller">&#128274;</button></div>
 <div id="v-new">
 <h1>Fiche pour la rédaction du PV</h1>
-<button class="btn sec" id="ex">Remplir avec un exemple fictif</button>
 <div id="prog" class="prog"></div><div id="form"></div>
 <div id="fin" hidden><p class="sub" style="margin-top:12px">Générez l’aperçu, puis partagez le document (PDF ou Word) : le téléphone propose votre messagerie, et vous choisissez les destinataires dans celle-ci.</p><button class="btn" id="gen">Générer l’aperçu</button>
 <div id="apercu" class="doc" hidden></div>
@@ -264,7 +263,6 @@ var RAW=`
 INF=INF.map(function(x){return{c:x.c,l:x.l,k:x.k,p:x.p,r:x.r,n:'',w:KW[x.c]}}).concat(RAW.trim().split('\n').map(function(t){var a=t.split('|');return{c:a[0],l:a[1],k:a[2]==='D'?'Délit':a[2]==='1'?'1ère':a[2]+'ème',p:'ART.'+a[3]+(a[3].indexOf('PEN')<0?' C.ENVIR.':''),r:'',n:a[4],w:a[5]}}));
 var TYPES=[
 {id:'carte',n:'Pêche sans carte',b:1,c:['7384','20165','20166']},
-{id:'doc',n:'Carte non présentée',b:1,c:['21467','21468']},
 {id:'periode',n:'Périodes et heures interdites',c:['20158','21593','20148','7437']},
 {id:'taille',n:'Tailles et quantités',c:['20152','20153','20154','20150','20151']},
 {id:'engins',n:'Engins et modes de pêche',c:['20157','20156','21312','20155','20161','20162','20163','20164','7453','7455','7465','7466']},
@@ -357,7 +355,7 @@ function construire(){
  sec('Contrevenant');kv('Identité',(v('civ')+' '+ok('mn')+' '+v('mp')).trim());kv('Né(e) le',dn('nai')+' à '+ok('nal'));if(v('prof'))kv('Profession',v('prof'));kv('Adresse',ok('adr'));if(v('tel'))kv('Téléphone',v('tel'));kv('Justificatif d’identité',v('idv'));if(v('idn'))kv('N° du justificatif',v('idn'));if(v('pre'))kv('Personne présente',v('pre'));
  sec('Infractions relevées');if(!sel.length)P.push({t:'para',a:'[aucune infraction sélectionnée]'});
  sel.forEach(function(x){var nn=nuit&&x.n,k=nn?up(x.k):x.k,ex=x.r?['Prévue par : '+x.p,'Réprimée par : '+x.r]:['Article(s) : '+x.p];P.push({t:'inf',c:nn?x.n:x.c,l:x.l+(nn?' (de nuit)':''),k:k==='Délit'?'Délit':'Contravention de '+k+' classe',x:ex})});
- sec('Constatations');v('cons').split(/\n\s*\n/).filter(Boolean).forEach(function(t){P.push({t:'para',a:t.replace(/\n/g,' ')})});
+ sec('Constatations');v('cons').split(/\n\s*\n/).filter(Boolean).forEach(function(t){t=t.replace(/\n/g,' ').replace('[Le pêcheur reconnaît ou conteste les faits.]','').trim();if(t)P.push({t:'para',a:t})});P.push({t:'para',a:cloture()});
  sec('Reconnaissance du contrevenant');kv('Position',v('reco')==='À préciser'?'[à compléter]':v('reco'));if(v('decl'))kv('Déclarations',v('decl'));
  if($('refus').checked)kv('Signature','Le contrevenant refuse de signer');
  else if(sigDirty){var c=$('sig');P.push({t:'sig',a:'Signature du contrevenant',o:{url:c.toDataURL('image/jpeg',0.92),w:c.width,h:c.height}})}
@@ -399,6 +397,14 @@ function nb(n){var r;if(n<20)return UN[n];if(n<70){r=n%10;return DIX[Math.floor(
 function dl(iso){var p=iso.split('-');return(+p[2]===1?'premier':nb(+p[2]))+' '+MOIS[+p[1]-1]+' '+nb(+p[0])}
 function hl(t){var p=t.split(':'),h=+p[0],m=+p[1];return nb(h).replace(/un$/,'une')+' heure'+(h>1?'s':'')+(m?' et '+nb(m).replace(/un$/,'une')+' minute'+(m>1?'s':''):'')}
 function liste(a){return a.length>1?a.slice(0,-1).join(', ')+' et '+a[a.length-1]:a[0]}
+function cloture(){
+ var r=v('reco'),f=[];
+ f.push(r==='Reconnaît les faits'?'Le pêcheur reconnaît les faits.':r==='Conteste les faits'?'Le pêcheur conteste les faits.':r==='Ne fait aucune déclaration'?'Le pêcheur ne fait aucune déclaration.':'[Le pêcheur reconnaît ou conteste les faits.]');
+ if(v('decl')&&r!=='Ne fait aucune déclaration')f.push('Il déclare : « '+v('decl').replace(/[.\s]+$/,'')+' ».');
+ if($('refus')&&$('refus').checked)f.push('Il refuse de signer le présent procès-verbal.');else if(sigDirty)f.push('Sa signature est recueillie.');
+ if(PH.length)f.push(PH.length>1?PH.length+' photographies sont jointes au dossier.':'Une photographie est jointe au dossier.');
+ f.push('Nous lui dressons procès-verbal'+(v('hp')?' à '+hl(v('hp')):'')+'.');
+ return f.join(' ')}
 function pre(){
  var g=gardesSel(),pl=g.length>1,two=!!v('pre'),nuit=$('nuit').checked,sel=INF.filter(function(x){return SEL[x.c]}),P=[],c='';
  var date=v('df')?dl(v('df')):'[date]',heure=v('hf')?hl(v('hf')):'[heure]';
@@ -413,19 +419,12 @@ function pre(){
  P.push(c);
  if(sel.length)P.push('Les faits constatés sont susceptibles de constituer : '+sel.map(function(x){var n=nuit&&x.n,l=x.l.charAt(0).toLowerCase()+x.l.slice(1);return l+(n?' (de nuit)':'')+' (NATINF '+(n?x.n:x.c)+')'}).join(' ; ')+'.');
  P.push('[Précisez les faits constatés et la réponse du pêcheur.]');
- var r=v('reco'),f=[];
- f.push(r==='Reconnaît les faits'?'Le pêcheur reconnaît les faits.':r==='Conteste les faits'?'Le pêcheur conteste les faits.':r==='Ne fait aucune déclaration'?'Le pêcheur ne fait aucune déclaration.':'[Le pêcheur reconnaît ou conteste les faits.]');
- if(v('decl')&&r!=='Ne fait aucune déclaration')f.push('Il déclare : « '+v('decl').replace(/[.\s]+$/,'')+' ».');
- if($('refus')&&$('refus').checked)f.push('Il refuse de signer le présent procès-verbal.');else if(sigDirty)f.push('Sa signature est recueillie.');
- if(PH.length)f.push(PH.length>1?PH.length+' photographies sont jointes au dossier.':'Une photographie est jointe au dossier.');
- f.push('Nous lui dressons procès-verbal'+(v('hp')?' à '+hl(v('hp')):'')+'.');
- P.push(f.join(' '));
  return P.join('\n\n')}
 var HPMAN=false;
 function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function majHp(){if(HPMAN||!$('hp'))return;var d=new Date();$('hp').value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function refreshDraft(){var c=$('cons');if(c&&DRAFT&&c.value===DRAFT){DRAFT=pre();c.value=DRAFT}}
-function genDraft(){var c=$('cons');DRAFT=pre();c.value=DRAFT;var h=$('prehint');if(h)h.textContent='Texte rédigé à partir des éléments saisis : il se met à jour tout seul tant que vous ne le modifiez pas. Complétez les passages entre crochets.'}
+function genDraft(){var c=$('cons');DRAFT=pre();c.value=DRAFT;var h=$('prehint');if(h)h.textContent='Texte rédigé à partir des éléments saisis : il se met à jour tout seul tant que vous ne le modifiez pas. Complétez les passages entre crochets. La fin du texte (reconnaissance, déclarations, signature, photos, heure du PV) est ajoutée automatiquement au document.'}
 function initPre(){majHp();$('hp').addEventListener('input',function(){HPMAN=true});
  if(!initPre.w){initPre.w=1;['input','change'].forEach(function(ev){$('form').addEventListener(ev,function(e){if(e.target.id==='cons')return;setTimeout(refreshDraft,0)})})}
  $('prebtn').addEventListener('click',function(){var t=$('cons').value.trim();
@@ -616,9 +615,6 @@ $('rsave').addEventListener('click',enregistrerReglages);
 $('dl').addEventListener('click',function(){partagerForm('docx')});$('pdf').addEventListener('click',function(){partagerForm('pdf')});
 $('cp').addEventListener('click',function(){PAR=construire();(navigator.clipboard?navigator.clipboard.writeText(texte(PAR)):Promise.reject()).then(function(){msg('Texte copié.')},function(){msg('Copie impossible ici : sélectionnez le texte de l’aperçu.')})});
 $('gen').addEventListener('click',function(){PAR=construire();paint($('apercu'),PAR);$('apercu').hidden=false;$('act').hidden=false;msg('Vérifiez l’aperçu (les passages « [à compléter] » restent à renseigner), puis partagez le PDF ou le Word.');$('apercu').scrollIntoView({behavior:'smooth',block:'start'})});
-$('ex').addEventListener('click',function(){
- var d={df:'2026-10-17',hf:'16:00',hp:'16:10',nom:'Rivière exemple',cat:'deuxième',lieu:'amont immédiat du pont, rive droite',com:'COMMUNE EXEMPLE',prof:'Profession exemple',idn:'0000000000',mn:'EXEMPLE',mp:'Jean',nai:'1990-05-12',nal:'Limoges',adr:'1 rue de l’Exemple, 87000 LIMOGES',tel:'06 00 00 00 00'};
- Object.keys(d).forEach(function(k){$(k).value=d[k]});['7384','20165','20166'].forEach(function(c){SEL[c]=1});TYPE='carte';chips();filtrer();rendSel()});
 lkMode();rend();
 </script>
 </body>

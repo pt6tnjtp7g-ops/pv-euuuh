@@ -27,10 +27,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .stp b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--surf-eau);color:var(--eau)}.stp span{display:none}
 .stp[aria-current="true"]{background:var(--eau);color:var(--fond);border-color:var(--eau)}.stp[aria-current="true"] b{background:var(--fond);color:var(--eau)}.stp[aria-current="true"] span{display:inline}
 .bar{display:flex;gap:10px;margin-top:8px}.bar .btn{flex:1}
-.tabs{display:flex;gap:8px;margin-bottom:8px}.tabs button{flex:1;min-height:48px;border:1px solid var(--ligne);border-radius:6px;background:var(--surf);color:var(--encre);font:700 15px inherit;font-family:inherit;cursor:pointer}
+.tabs{display:flex;gap:8px;margin-bottom:8px}.tabs button{flex:1;min-height:48px;border:1px solid var(--ligne);border-radius:6px;background:var(--surf);color:var(--encre);font:700 14px inherit;font-family:inherit;cursor:pointer;min-width:0;padding:0 2px;line-height:1.15}
 .tabs [aria-selected="true"]{background:var(--eau);color:var(--fond);border-color:var(--eau)}.tabs #tb-lock{flex:0 0 52px}
 .arc{display:block;width:100%;text-align:left;background:var(--surf);border:1px solid var(--ligne);border-left:8px solid var(--eau);border-radius:6px;padding:12px 14px;margin:0 0 10px;color:var(--encre);font:inherit;cursor:pointer;min-height:56px}.arc b{display:block}.arc span{display:block;color:var(--muted);font-size:15px}
-canvas#sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:2px solid var(--ligne);border-radius:6px;touch-action:none}
+canvas#sig,canvas#s_sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:2px solid var(--ligne);border-radius:6px;touch-action:none}
 #msg{color:var(--muted);margin-top:10px}[hidden]{display:none!important}
 .lock{position:fixed;inset:0;background:var(--fond);display:grid;place-items:start center;padding:0 16px;overflow:auto;z-index:50}.lockbox{width:100%;max-width:420px;margin-top:12vh;padding-top:env(safe-area-inset-top,0px)}
 .err{color:var(--alerte);min-height:1.5em;margin:10px 0 0}.linkbtn{background:none;border:0;color:var(--eau);font:inherit;text-decoration:underline;padding:12px 0;cursor:pointer}
@@ -41,6 +41,11 @@ canvas#sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:
 .doc .dinf{background:#ECF1F9;border-left:5px solid #012658;padding:8px 12px;margin:8px 0}.doc .dinf b{display:block;color:#012658}.doc .dinf small{display:block;color:#4F5F7A}
 .doc .dp{margin:0 0 8px}.doc .dsig{border:1px solid #CBD5D9;border-radius:4px;padding:6px;width:260px;max-width:100%}.doc .dsig img{width:100%;display:block}.doc .cap{color:#4F5F7A}
 .doc .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.doc figure{margin:0}.doc figure img{width:100%;display:block}.doc figcaption{font-size:12px;color:#4F5F7A}
+.mat{background:var(--surf);border:1px solid var(--ligne);border-left:6px solid var(--eau);border-radius:8px;padding:6px 14px 14px;margin-top:14px}
+.mat-h{display:flex;justify-content:space-between;align-items:center;margin-top:6px}.mat-h b{font-size:18px;color:var(--eau)}
+.mat-rm{width:48px;height:48px;border-radius:50%;border:1px solid var(--ligne);background:var(--surf-eau);color:var(--eau);font:700 28px/1 inherit;font-family:inherit;cursor:pointer}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}.thumbs>div{position:relative}.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:4px;display:block}
+.thumbs button{position:absolute;top:-8px;right:-8px;width:30px;height:30px;border-radius:50%;border:0;background:var(--alerte);color:#fff;font:700 18px/1 inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -57,7 +62,7 @@ canvas#sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:
  <div id="lreset" hidden><p class="sub">Le mot de passe ne peut pas être récupéré : il protège les fiches de ce téléphone. Vous pouvez seulement tout effacer et recommencer. Tapez EFFACER pour confirmer.</p><input id="lconf" autocomplete="off" aria-label="Confirmation"><button type="button" class="btn sec" id="lwipe">Effacer toutes les données de ce téléphone</button></div>
 </div></div>
 <main id="app" hidden>
-<div class="tabs" role="tablist"><button type="button" role="tab" id="tb-new" aria-selected="true">Nouveau PV</button><button type="button" role="tab" id="tb-arc" aria-selected="false">Archives</button><button type="button" role="tab" id="tb-set" aria-selected="false">Réglages</button><button type="button" id="tb-lock" aria-label="Verrouiller l’application" title="Verrouiller">&#128274;</button></div>
+<div class="tabs" role="tablist"><button type="button" role="tab" id="tb-new" aria-selected="true">Nouveau PV</button><button type="button" role="tab" id="tb-arc" aria-selected="false">Archives</button><button type="button" role="tab" id="tb-sai" aria-selected="false">Saisie</button><button type="button" role="tab" id="tb-set" aria-selected="false">Réglages</button><button type="button" id="tb-lock" aria-label="Verrouiller l’application" title="Verrouiller">&#128274;</button></div>
 <div id="v-new">
 <h1>Fiche pour la rédaction du PV</h1>
 <div id="prog" class="prog"></div><div id="form"></div>
@@ -72,6 +77,12 @@ canvas#sig{display:block;width:100%;aspect-ratio:640/240;background:#fff;border:
 </div></div>
 <div class="bar"><button type="button" class="btn sec" id="prev">Précédent</button><button type="button" class="btn" id="next">Suivant</button></div><p id="msg"></p></div>
 <div id="v-arc" hidden><h1>Archives</h1><p class="sub">Fiches enregistrées (chiffrées) sur cet appareil uniquement.</p><div id="asearch"><label for="aq">Rechercher (n° de PV, nom, prénom ou date de naissance)</label><input id="aq" type="search" placeholder="ex. : PV-2026-004, DUPONT, 12/05/1990"><p class="sub" id="acnt" style="margin-top:8px"></p></div><div id="alist"></div><div id="adet" hidden></div></div>
+<div id="v-sai" hidden><h1>Saisie de matériel</h1>
+<div id="sai-choix"><p class="sub">Rédigez le procès-verbal de saisie du matériel de pêche.</p>
+<button class="btn" id="sai-pv">Partir d’un PV déjà fait</button>
+<div id="sai-src" hidden><label for="saq">Rechercher le PV (n° de PV, nom, prénom ou date de naissance)</label><input id="saq" type="search" placeholder="ex. : PV-2026-004, DUPONT, 12/05/1990"><p class="sub" id="sacnt" style="margin-top:8px"></p><div id="salist"></div></div>
+<button class="btn sec" id="sai-new">Nouvelle saisie (formulaire vierge)</button></div>
+<div id="sai-form" hidden></div></div>
 <div id="v-set" hidden><h1>Réglages</h1><p class="sub">Enregistrés sur ce téléphone uniquement.</p><label for="rg">Gardes (un nom par ligne, ils seront cochés par défaut)</label><textarea id="rg" placeholder="Prénom NOM"></textarea><button type="button" class="btn" id="rsave">Enregistrer</button><p id="rmsg" class="sub" style="margin-top:10px"></p></div>
 </main>
 <script>
@@ -133,7 +144,7 @@ async function ouvrirSession(){
 }
 function verrouiller(){
  if(!KEY&&$('app').hidden)return;
- KEY=null;ARC=[];$('app').hidden=true;$('lock').hidden=false;$('alist').innerHTML='';$('adet').innerHTML='';$('adet').hidden=true;
+ KEY=null;ARC=[];$('app').hidden=true;$('lock').hidden=false;$('alist').innerHTML='';$('adet').innerHTML='';$('salist').innerHTML='';$('adet').hidden=true;
  $('lu').value=compte()?compte().u:'';$('lp').value='';lkMode();clearTimeout(TMR);
  try{$('lp').focus()}catch(e){}
 }
@@ -157,14 +168,14 @@ function kv(st,op,a,b){
  return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction(st,op==='get'||op==='all'?'readonly':'readwrite'),s=t.objectStore(st),q=op==='all'?s.getAll():op==='get'?s.get(a):op==='put'?(st==='pv'?s.put(b):s.put(b,a)):s.delete(a);t.oncomplete=function(){res(q.result)};t.onerror=t.onabort=function(){rej(t.error)}})}).catch(function(){NOIDB=true;return mem()})}
 async function loadIdx(){var r=await kv('meta','get','idx');ARC=r?await dec(r):[]}
 async function saveIdx(){await kv('meta','put','idx',await enc(ARC))}
-async function putRec(rec){var e=await enc(rec);await kv('pv','put',rec.id,{id:rec.id,iv:e.iv,d:e.d});var m={id:rec.id,n:rec.n,mn:rec.mn,mp:rec.mp,nai:rec.nai,df:rec.df,codes:rec.codes,ts:rec.ts},i=ARC.findIndex(function(x){return x.id===rec.id});if(i<0)ARC.push(m);else ARC[i]=m;await saveIdx()}
+async function putRec(rec){var e=await enc(rec);await kv('pv','put',rec.id,{id:rec.id,iv:e.iv,d:e.d});var m={id:rec.id,n:rec.n,mn:rec.mn,mp:rec.mp,nai:rec.nai,df:rec.df,codes:rec.codes,ts:rec.ts,k:rec.kind||'pv'},i=ARC.findIndex(function(x){return x.id===rec.id});if(i<0)ARC.push(m);else ARC[i]=m;await saveIdx()}
 async function getRec(id){var r=await kv('pv','get',id);return r?dec(r):null}
 async function delRec(id){await kv('pv','del',id);ARC=ARC.filter(function(x){return x.id!==id});await saveIdx()}
 async function seqNext(y){var m=(await kv('meta','get','seq'+y))||0;ARC.forEach(function(x){var q=/^PV-(\d{4})-(\d+)$/.exec(x.n);if(q&&+q[1]===y&&+q[2]>m)m=+q[2]});return m+1}
 function prefillNum(){var y=yr();seqNext(y).then(function(k){$('n').value=fmt(y,k);$('n').readOnly=true})}
 function arcCount(){$('tb-arc').textContent='Archives ('+ARC.length+')'}
-async function archiverRec(){if(archived){var r=await getRec(archived);if(r)return r}var y=yr(),k=await seqNext(y),n=fmt(y,k);$('n').value=n;PAR=construire();var rec={id:n,n:n,ts:Date.now(),mn:v('mn'),mp:v('mp'),nai:v('nai'),df:v('df'),codes:Object.keys(SEL).join(', '),PAR:PAR};await putRec(rec);await kv('meta','put','seq'+y,k);archived=n;arcCount();return rec}
-async function preparer(){var rec=await archiverRec();PAR=construire();rec.PAR=PAR;rec.mn=v('mn');rec.mp=v('mp');rec.nai=v('nai');rec.df=v('df');rec.codes=Object.keys(SEL).join(', ');await putRec(rec);arcCount();return rec}
+async function archiverRec(){if(archived){var r=await getRec(archived);if(r)return r}var y=yr(),k=await seqNext(y),n=fmt(y,k);$('n').value=n;PAR=construire();var rec={id:n,n:n,ts:Date.now(),mn:v('mn'),mp:v('mp'),nai:v('nai'),df:v('df'),codes:Object.keys(SEL).join(', '),PAR:PAR,ident:identPV()};await putRec(rec);await kv('meta','put','seq'+y,k);archived=n;arcCount();return rec}
+async function preparer(){var rec=await archiverRec();PAR=construire();rec.PAR=PAR;rec.mn=v('mn');rec.mp=v('mp');rec.nai=v('nai');rec.df=v('df');rec.codes=Object.keys(SEL).join(', ');rec.ident=identPV();await putRec(rec);arcCount();return rec}
 
 var KW={'7384':'permission propriétaire droit de pêche étang privé propriété sans permission','20165':'redevance cotisation milieu aquatique carte de pêche sans carte timbre','20166':'association agréée AAPPMA adhésion membre carte de pêche sans carte'};
 var INF=[
@@ -518,7 +529,7 @@ function pdf(P){
   else i++}
  if(!pg)np();
  var num=P[0]&&P[0].n||'',N=pages.length;
- pages.forEach(function(q,k){pg=q;rect(0,H-HB,W,HB,TEAL);txt('PV Pêche  ·  Fiche de renseignements',M,H-HB+13,10,true,WH);txt(num,W-M-wd(num,true)*10,H-HB+13,10,true,WH);
+ pages.forEach(function(q,k){pg=q;rect(0,H-HB,W,HB,TEAL);txt((P[0]&&P[0].h)||'PV Pêche  ·  Fiche de renseignements',M,H-HB+13,10,true,WH);txt(num,W-M-wd(num,true)*10,H-HB+13,10,true,WH);
   hl(M,40,M+CW,LN,0.5);txt('Document confidentiel – données personnelles',M,28,8,false,GR);var s='Page '+(k+1)+' / '+N;txt(s,W-M-wd(s)*8,28,8,false,GR)});
  var parts=[],len=0,offs=[];
  function put(x){var a=x;if(typeof x==='string'){a=new Uint8Array(x.length);for(var j=0;j<x.length;j++)a[j]=x.charCodeAt(j)&255}parts.push(a);len+=a.length}
@@ -569,7 +580,7 @@ function docx(P){
   else if(p.t==='img'){var rows='';while(i<P.length&&P[i].t==='img'){var cells='';for(var j=0;j<2;j++){var q=P[i];if(q&&q.t==='img'){cells+=tc(4819,img(q.o,2900000,2300000)+par(run(q.a,{s:17,c:GR}),{af:100,jc:'center'}));i++}else cells+=tc(4819,par('',{af:0}))}rows+='<w:tr><w:trPr><w:cantSplit/></w:trPr>'+cells+'</w:tr>'}body+=tbl([4819,4819],rows,NOB)}
   else i++}
  var num=P[0]&&P[0].n||'',NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"',H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
- var hdr=H+'<w:hdr '+NS+'><w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="2" w:color="'+TEAL+'"/></w:pBdr><w:tabs><w:tab w:val="right" w:pos="9638"/></w:tabs><w:spacing w:after="0"/></w:pPr>'+run('PV Pêche  ·  Fiche de renseignements',{b:1,s:18,c:TEAL})+'<w:r><w:tab/></w:r>'+run(num,{b:1,s:18,c:TEAL})+'</w:p></w:hdr>';
+ var hdr=H+'<w:hdr '+NS+'><w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="8" w:space="2" w:color="'+TEAL+'"/></w:pBdr><w:tabs><w:tab w:val="right" w:pos="9638"/></w:tabs><w:spacing w:after="0"/></w:pPr>'+run((P[0]&&P[0].h)||'PV Pêche  ·  Fiche de renseignements',{b:1,s:18,c:TEAL})+'<w:r><w:tab/></w:r>'+run(num,{b:1,s:18,c:TEAL})+'</w:p></w:hdr>';
  function fld(c){return'<w:fldSimple w:instr=" '+c+' "><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="'+GR+'"/><w:sz w:val="16"/></w:rPr><w:t>1</w:t></w:r></w:fldSimple>'}
  var ftr=H+'<w:ftr '+NS+'><w:p><w:pPr><w:tabs><w:tab w:val="right" w:pos="9638"/></w:tabs><w:spacing w:after="0"/></w:pPr>'+run('Document confidentiel – données personnelles',{s:16,c:GR})+'<w:r><w:tab/></w:r>'+run('Page ',{s:16,c:GR})+fld('PAGE')+run(' / ',{s:16,c:GR})+fld('NUMPAGES')+'</w:p></w:ftr>';
  var R='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
@@ -584,8 +595,8 @@ function docx(P){
 /* ===== Archives, partage et interface ===== */
 function filtrerArc(){var t=norm($('aq').value).split(/\s+/).filter(Boolean),r=ARC.filter(function(x){var d=x.nai?x.nai.split('-'):[],s=norm(x.n+' '+x.mn+' '+x.mp+' '+x.nai+' '+(d.length>2?d[2]+'/'+d[1]+'/'+d[0]+' '+d[2]+d[1]+d[0]:''));return t.every(function(w){return s.indexOf(w)>=0})}).sort(function(a,b){return b.ts-a.ts});
  $('acnt').textContent=(NOIDB?'Stockage indisponible ici : les fiches seront perdues à la fermeture. ':'')+(!ARC.length?'Aucune fiche archivée pour le moment.':t.length?r.length+' résultat(s) sur '+ARC.length:ARC.length+' fiche(s) archivée(s)');
- $('alist').innerHTML=r.map(function(x){return '<button type="button" class="arc" data-id="'+esc(x.id)+'"><b>'+esc(x.n)+' · '+esc((x.mn+' '+x.mp).trim()||'Sans nom')+'</b><span>Né(e) le '+(fd(x.nai)||'—')+' · faits du '+(fd(x.df)||'—')+(x.codes?' · NATINF '+esc(x.codes):'')+'</span></button>'}).join('')}
-function onglet(t){['new','arc','set'].forEach(function(k){$('v-'+k).hidden=k!==t;$('tb-'+k).setAttribute('aria-selected',k===t)});if(t==='arc'){$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false;filtrerArc()}window.scrollTo(0,0)}
+ $('alist').innerHTML=r.map(function(x){return '<button type="button" class="arc" data-id="'+esc(x.id)+'"><b>'+esc(x.n)+' · '+esc((x.mn+' '+x.mp).trim()||'Sans nom')+'</b><span>Né(e) le '+(fd(x.nai)||'—')+(x.k==='saisie'?' · saisie du ':' · faits du ')+(fd(x.df)||'—')+(x.k==='saisie'?' · Saisie de matériel'+(x.codes?' ('+esc(x.codes)+')':''):(x.codes?' · NATINF '+esc(x.codes):''))+'</span></button>'}).join('')}
+function onglet(t){['new','arc','sai','set'].forEach(function(k){$('v-'+k).hidden=k!==t;$('tb-'+k).setAttribute('aria-selected',k===t)});if(t==='arc'){$('adet').hidden=true;$('asearch').hidden=false;$('alist').hidden=false;filtrerArc()}if(t==='sai')saiFiltre();window.scrollTo(0,0)}
 async function ouvrir(id){var r=await getRec(id);if(!r)return;CUR=r;
  $('adet').innerHTML='<button type="button" class="btn sec" id="aback">← Retour à la liste</button><div class="doc" id="aprev"></div><button type="button" class="btn" id="apdf">Partager / enregistrer en PDF</button><button type="button" class="btn sec" id="adl">Partager / enregistrer en Word (.docx)</button><button type="button" class="btn sec" id="adel">Supprimer cette fiche</button><p id="amsg" class="sub" style="margin-top:10px"></p>';
  paint($('aprev'),CUR.PAR);$('asearch').hidden=true;$('alist').hidden=true;$('adet').hidden=false;window.scrollTo(0,0)}
@@ -615,6 +626,100 @@ $('rsave').addEventListener('click',enregistrerReglages);
 $('dl').addEventListener('click',function(){partagerForm('docx')});$('pdf').addEventListener('click',function(){partagerForm('pdf')});
 $('cp').addEventListener('click',function(){PAR=construire();(navigator.clipboard?navigator.clipboard.writeText(texte(PAR)):Promise.reject()).then(function(){msg('Texte copié.')},function(){msg('Copie impossible ici : sélectionnez le texte de l’aperçu.')})});
 $('gen').addEventListener('click',function(){PAR=construire();paint($('apercu'),PAR);$('apercu').hidden=false;$('act').hidden=false;msg('Vérifiez l’aperçu (les passages « [à compléter] » restent à renseigner), puis partagez le PDF ou le Word.');$('apercu').scrollIntoView({behavior:'smooth',block:'start'})});
+/* ===== Saisie de matériel ===== */
+var SAI={items:[],pv:''},archivedS='',SH_MAN=false,SDIRTY=false;
+var TYPES_MAT=['Canne à pêche','Moulinet','Ligne ou fil','Leurre ou appât artificiel','Appât ou amorce','Épuisette','Filet','Nasse ou verveux','Hameçons ou montage','Autre (à préciser)'];
+function blankMat(){return{type:TYPES_MAT[0],marque:'',modele:'',ref:'',qte:'1',desc:'',scelle:'',obs:'',photos:[]}}
+function nowHM(){var d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function identPV(){return{civ:v('civ'),mn:v('mn'),mp:v('mp'),nai:v('nai'),nal:v('nal'),prof:v('prof'),adr:v('adr'),tel:v('tel'),idv:v('idv'),idn:v('idn')}}
+function identFromPar(r){var k={};(r.PAR||[]).forEach(function(p){if(p.t==='kv')k[p.a]=p.b});
+ function g(a){var x=k[a]||'';return x.charAt(0)==='['?'':x}
+ var nl=k['Né(e) le']||'',i=nl.indexOf(' à '),nal=i>=0?nl.slice(i+3):'';if(nal.charAt(0)==='[')nal='';
+ return{civ:/^Madame/.test(k['Identité']||'')?'Madame':'Monsieur',mn:r.mn||'',mp:r.mp||'',nai:r.nai||'',nal:nal,prof:g('Profession'),adr:g('Adresse'),tel:g('Téléphone'),idv:g('Justificatif d’identité'),idn:g('N° du justificatif')}}
+async function seqNextS(y){var m=(await kv('meta','get','seqs'+y))||0;ARC.forEach(function(x){var q=/^SAI-(\d{4})-(\d+)$/.exec(x.n);if(q&&+q[1]===y&&+q[2]>m)m=+q[2]});return m+1}
+function fmtS(y,k){return 'SAI-'+y+'-'+String(k).padStart(3,'0')}
+function prefillS(){var y=yr();seqNextS(y).then(function(k){var e=$('s_n');if(e&&!archivedS)e.value=fmtS(y,k)})}
+function sf(id,label,type,val,extra){return '<label for="'+id+'">'+label+'</label><input id="'+id+'" type="'+(type||'text')+'" value="'+esc(val||'')+'"'+(extra||'')+'>'}
+function fld(i,f,l,val,t){return '<label>'+l+'<input data-i="'+i+'" data-f="'+f+'" type="'+(t||'text')+'"'+(t==='number'?' min="1"':'')+' value="'+esc(val)+'"></label>'}
+function matCard(m,i){return '<div class="mat"><div class="mat-h"><b>Matériel n°'+(i+1)+'</b><button type="button" class="mat-rm" data-rm="'+i+'" aria-label="Retirer le matériel n°'+(i+1)+'">−</button></div>'
+ +'<label>Type de matériel<select data-i="'+i+'" data-f="type">'+TYPES_MAT.map(function(t){return '<option'+(t===m.type?' selected':'')+'>'+t+'</option>'}).join('')+'</select></label>'
+ +fld(i,'marque','Marque',m.marque)+fld(i,'modele','Modèle',m.modele)+fld(i,'ref','Référence ou numéro de série',m.ref)+fld(i,'qte','Quantité',m.qte,'number')
+ +'<label>Description (couleur, état, dimensions…)<textarea data-i="'+i+'" data-f="desc" style="min-height:90px">'+esc(m.desc)+'</textarea></label>'
+ +fld(i,'scelle','Numéro de scellé (facultatif)',m.scelle)+fld(i,'obs','Observations sur ce matériel',m.obs)
+ +'<label>Photos de ce matériel<input type="file" accept="image/*" multiple data-i="'+i+'" data-f="photo"></label><div class="thumbs">'+m.photos.map(function(p,j){return '<div><img src="'+p.url+'" alt="Photo '+(j+1)+'"><button type="button" data-ph="'+i+','+j+'" aria-label="Retirer la photo">×</button></div>'}).join('')+'</div></div>'}
+function rendMat(){$('s_items').innerHTML=SAI.items.map(matCard).join('')}
+function addPh(i,files){Array.prototype.slice.call(files).forEach(function(f){var im=new Image(),u=URL.createObjectURL(f);im.onload=function(){var s=Math.min(1,1280/Math.max(im.width,im.height)),w=Math.round(im.width*s),h=Math.round(im.height*s),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);if(SAI.items[i]){SAI.items[i].photos.push({url:c.toDataURL('image/jpeg',0.72),w:w,h:h});rendMat()}};im.onerror=function(){URL.revokeObjectURL(u)};im.src=u})}
+function sigPad(){var c=$('s_sig'),x=c.getContext('2d'),d=false;x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.lineWidth=3;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#0B1A33';
+ function pos(e){var r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]}
+ c.addEventListener('pointerdown',function(e){d=true;c.setPointerCapture(e.pointerId);var p=pos(e);x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(p[0]+0.1,p[1]+0.1);x.stroke();SDIRTY=true;e.preventDefault()});
+ c.addEventListener('pointermove',function(e){if(!d)return;var p=pos(e);x.lineTo(p[0],p[1]);x.stroke();e.preventDefault()});
+ ['pointerup','pointercancel'].forEach(function(t){c.addEventListener(t,function(){d=false})});
+ $('s_sigclr').addEventListener('click',function(){x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);SDIRTY=false})}
+function saiOpen(ident,pvRef){
+ ident=ident||{};SAI={items:[blankMat()],pv:pvRef||''};archivedS='';SH_MAN=false;SDIRTY=false;
+ var h='<button type="button" class="btn sec" id="s_back" style="margin-top:0">← Changer de mode</button>';
+ h+='<h2>Dossier</h2>'+sf('s_n','N° de saisie (attribué automatiquement)','text','',' readonly')+(pvRef?sf('s_pv','PV rattaché','text',pvRef,' readonly'):'')+sf('s_d','Date de la saisie','date',today())+'<label for="s_h">Heure de la saisie</label><input id="s_h" type="time" value="'+nowHM()+'"><button type="button" class="btn sec" id="s_now">Marquer l’heure actuelle</button>'+sf('s_lieu','Lieu de la saisie (facultatif)','text','');
+ h+='<h2>Gardes</h2>'+(GARDES.length?GARDES.map(function(g,i){return '<div class="chk"><input type="checkbox" id="sg'+i+'" data-sg="'+esc(g)+'" checked><label for="sg'+i+'">'+esc(g)+'</label></div>'}).join(''):'<p class="sub">À configurer dans l’onglet Réglages.</p>')+sf('s_g2','Autre garde (facultatif)','text','');
+ h+='<h2>Contrevenant</h2><label for="s_civ">Civilité</label><select id="s_civ"><option>Monsieur</option><option>Madame</option></select>'+sf('s_mn','Nom','text',ident.mn)+sf('s_mp','Prénom','text',ident.mp)+sf('s_nai','Date de naissance','date',ident.nai)+sf('s_nal','Lieu de naissance','text',ident.nal)+sf('s_prof','Profession','text',ident.prof)+sf('s_adr','Adresse','text',ident.adr)+sf('s_tel','Téléphone','text',ident.tel)+'<label for="s_idv">Identité</label><select id="s_idv"><option>Renseignements fournis par le pêcheur, sans justificatif</option><option>Identité vérifiée sur pièce d’identité</option></select>'+sf('s_idn','Numéro du justificatif d’identité','text',ident.idn);
+ h+='<h2>Matériel saisi</h2><p class="sub">Chaque matériel est une fiche séparée : « + » pour en ajouter, « − » pour en retirer.</p><div id="s_items"></div><button type="button" class="btn sec" id="s_add">+ Ajouter un matériel</button>';
+ h+='<h2>Destination et observations</h2>'+sf('s_dest','Destination du matériel (scellé, dépôt…)','text','')+'<label for="s_obs">Observations générales</label><textarea id="s_obs"></textarea>';
+ h+='<h2>Signature du contrevenant</h2><canvas id="s_sig" width="640" height="240" aria-label="Zone de signature"></canvas><button type="button" class="btn sec" id="s_sigclr">Effacer la signature</button><div class="chk" style="margin-top:12px"><input type="checkbox" id="s_refus"><label for="s_refus">Le contrevenant refuse de signer</label></div>';
+ h+='<button class="btn" id="s_gen">Générer l’aperçu</button><div id="s_prev" class="doc" hidden></div><div id="s_act" hidden><button class="btn" id="s_pdf">Partager / enregistrer en PDF</button><button class="btn sec" id="s_dl">Partager / enregistrer en Word (.docx)</button><button class="btn sec" id="s_arch">Archiver sans partager</button><button class="btn sec" id="s_reset">Nouvelle saisie (vider)</button></div><p id="s_msg" class="sub" style="margin-top:10px"></p>';
+ $('sai-form').innerHTML=h;
+ if(ident.civ)$('s_civ').value=ident.civ;if(/vérifiée/.test(ident.idv||''))$('s_idv').selectedIndex=1;
+ $('sai-choix').hidden=true;$('sai-form').hidden=false;rendMat();prefillS();sigPad();wireSai();window.scrollTo(0,0)}
+function wireSai(){
+ $('s_back').addEventListener('click',function(){$('sai-form').hidden=true;$('sai-form').innerHTML='';$('sai-choix').hidden=false});
+ $('s_h').addEventListener('input',function(){SH_MAN=true});
+ $('s_now').addEventListener('click',function(){SH_MAN=false;$('s_h').value=nowHM()});
+ $('s_add').addEventListener('click',function(){SAI.items.push(blankMat());rendMat();var c=$('s_items').lastElementChild;if(c)c.scrollIntoView({behavior:'smooth',block:'start'})});
+ var it=$('s_items');
+ it.addEventListener('input',function(e){var t=e.target,i=t.dataset.i,f=t.dataset.f;if(i!=null&&f&&f!=='photo')SAI.items[+i][f]=t.value});
+ it.addEventListener('change',function(e){var t=e.target,i=t.dataset.i,f=t.dataset.f;if(f==='type')SAI.items[+i].type=t.value;if(f==='photo')addPh(+i,t.files)});
+ it.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.rm!=null){SAI.items.splice(+b.dataset.rm,1);if(!SAI.items.length)SAI.items.push(blankMat());rendMat()}
+  else if(b.dataset.ph){var q=b.dataset.ph.split(',');SAI.items[+q[0]].photos.splice(+q[1],1);rendMat()}});
+ $('s_gen').addEventListener('click',function(){var P=construireSaisie();paint($('s_prev'),P);$('s_prev').hidden=false;$('s_act').hidden=false;$('s_msg').textContent='Vérifiez l’aperçu, puis partagez le PDF ou le Word.';$('s_prev').scrollIntoView({behavior:'smooth',block:'start'})});
+ $('s_pdf').addEventListener('click',function(){partagerSai('pdf')});$('s_dl').addEventListener('click',function(){partagerSai('docx')});
+ $('s_arch').addEventListener('click',archiverSaiClic);
+ $('s_reset').addEventListener('click',function(){saiOpen({},'')})}
+function construireSaisie(){
+ if(!SH_MAN)$('s_h').value=nowHM();if(!v('s_d'))$('s_d').value=today();
+ var P=[],n=$('s_n').value||'[à compléter]',N=SAI.items.length,pv=SAI.pv;
+ function sec(a){P.push({t:'sec',a:a})}function kv(a,b){P.push({t:'kv',a:a,b:b})}
+ var mn=v('s_mn')||'[à compléter]',id=(v('s_civ')+' '+mn+' '+v('s_mp')).trim();
+ P.push({t:'title',a:'Procès-verbal de saisie du matériel de pêche',b:'N° '+n+(pv?'  ·  PV rattaché '+pv:'')+'  ·  Saisie du '+dn('s_d'),n:n,h:'PV Pêche  ·  Saisie de matériel'});
+ sec('Dossier');kv('N° de saisie',n);if(pv)kv('PV rattaché',pv);kv('Date de la saisie',dn('s_d'));kv('Heure de la saisie',hh('s_h'));if(v('s_lieu'))kv('Lieu de la saisie',v('s_lieu'));
+ sec('Gardes ayant procédé à la saisie');var g=[];document.querySelectorAll('[data-sg]').forEach(function(b){if(b.checked)g.push(b.dataset.sg)});if(v('s_g2'))g.push(v('s_g2'));if(!g.length)g=['[à compléter]'];g.forEach(function(x,i){kv('Garde '+(i+1),x)});
+ sec('Contrevenant');kv('Identité',id);kv('Né(e) le',(v('s_nai')?dn('s_nai'):'[à compléter]')+' à '+(v('s_nal')||'[à compléter]'));if(v('s_prof'))kv('Profession',v('s_prof'));kv('Adresse',v('s_adr')||'[à compléter]');if(v('s_tel'))kv('Téléphone',v('s_tel'));kv('Justificatif d’identité',v('s_idv'));if(v('s_idn'))kv('N° du justificatif',v('s_idn'));
+ sec('Matériel saisi');kv('Nombre d’éléments saisis',String(N));
+ SAI.items.forEach(function(m,i){sec('Matériel n°'+(i+1)+' – '+m.type);kv('Type',m.type);if(m.marque)kv('Marque',m.marque);if(m.modele)kv('Modèle',m.modele);if(m.ref)kv('Référence / n° de série',m.ref);kv('Quantité',m.qte||'1');if(m.desc)kv('Description',m.desc);if(m.scelle)kv('N° de scellé',m.scelle);if(m.obs)kv('Observations',m.obs);
+  m.photos.forEach(function(p,j){P.push({t:'img',a:'Matériel n°'+(i+1)+' – photo '+(j+1),o:{url:p.url,w:p.w,h:p.h}})})});
+ sec('Constatation');P.push({t:'para',a:'Le matériel décrit ci-dessus ('+N+(N>1?' éléments':' élément')+') est saisi à l’encontre de '+id+', le '+(v('s_d')?dl(v('s_d')):'[date]')+', à '+(v('s_h')?hl(v('s_h')):'[heure]')+'.'});
+ if(v('s_dest')){sec('Destination du matériel');kv('Destination',v('s_dest'))}
+ if(v('s_obs')){sec('Observations');v('s_obs').split(/\n\s*\n/).filter(Boolean).forEach(function(t){P.push({t:'para',a:t.replace(/\n/g,' ')})})}
+ sec('Signature du contrevenant');
+ if($('s_refus').checked)kv('Signature','Le contrevenant refuse de signer');
+ else if(SDIRTY){var c=$('s_sig');P.push({t:'sig',a:'Signature du contrevenant',o:{url:c.toDataURL('image/jpeg',0.92),w:c.width,h:c.height}})}
+ else kv('Signature','[non recueillie]');
+ return P}
+function identS(){return{civ:v('s_civ'),mn:v('s_mn'),mp:v('s_mp'),nai:v('s_nai'),nal:v('s_nal'),prof:v('s_prof'),adr:v('s_adr'),tel:v('s_tel'),idv:v('s_idv'),idn:v('s_idn')}}
+function majRecS(rec,P){var N=SAI.items.length;rec.PAR=P;rec.ident=identS();rec.mn=v('s_mn');rec.mp=v('s_mp');rec.nai=v('s_nai');rec.df=v('s_d');rec.codes=N+(N>1?' matériels':' matériel');rec.pvRef=SAI.pv}
+async function archiverSai(){if(archivedS){var r=await getRec(archivedS);if(r)return r}
+ var y=yr(),k=await seqNextS(y),n=fmtS(y,k);$('s_n').value=n;var rec={id:n,n:n,kind:'saisie',ts:Date.now()};majRecS(rec,construireSaisie());await putRec(rec);await kv('meta','put','seqs'+y,k);archivedS=n;arcCount();return rec}
+async function preparerSai(){var rec=await archiverSai();majRecS(rec,construireSaisie());await putRec(rec);arcCount();return rec}
+async function partagerSai(f){var r;try{r=await preparerSai()}catch(e){$('s_msg').textContent='Impossible de préparer le document.';return}await partager(f,'Saisie_'+r.n,$('s_msg'),r.PAR)}
+async function archiverSaiClic(){if(archivedS){$('s_msg').textContent='Déjà archivé sous le n° '+archivedS+'. Utilisez « Nouvelle saisie » pour en créer une autre.';return}
+ try{var r=await preparerSai();$('s_msg').textContent='Saisie '+r.n+' archivée dans l’onglet Archives.'+(NOIDB?' Attention : stockage indisponible ici, la fiche sera perdue à la fermeture.':'')}catch(e){$('s_msg').textContent='Archivage impossible sur cet appareil.'}}
+function saiFiltre(){if($('sai-src').hidden)return;
+ var t=norm($('saq').value).split(/\s+/).filter(Boolean),r=ARC.filter(function(x){if(x.k==='saisie')return false;var d=x.nai?x.nai.split('-'):[],s=norm(x.n+' '+x.mn+' '+x.mp+' '+x.nai+' '+(d.length>2?d[2]+'/'+d[1]+'/'+d[0]+' '+d[2]+d[1]+d[0]:''));return t.every(function(w){return s.indexOf(w)>=0})}).sort(function(a,b){return b.ts-a.ts});
+ $('sacnt').textContent=r.length?(t.length?r.length+' PV trouvé(s)':'PV les plus récents'):'Aucun PV trouvé : archivez d’abord un PV, ou choisissez « Nouvelle saisie ».';
+ $('salist').innerHTML=r.slice(0,20).map(function(x){return '<button type="button" class="arc" data-sid="'+esc(x.id)+'"><b>'+esc(x.n)+' · '+esc((x.mn+' '+x.mp).trim()||'Sans nom')+'</b><span>Né(e) le '+(fd(x.nai)||'—')+' · faits du '+(fd(x.df)||'—')+'</span></button>'}).join('')}
+$('sai-pv').addEventListener('click',function(){$('sai-src').hidden=false;saiFiltre();$('saq').focus()});
+$('sai-new').addEventListener('click',function(){saiOpen({},'')});
+$('saq').addEventListener('input',saiFiltre);
+$('salist').addEventListener('click',async function(e){var b=e.target.closest('[data-sid]');if(!b)return;var r=await getRec(b.dataset.sid);if(r)saiOpen(r.ident||identFromPar(r),r.n)});
+$('tb-sai').addEventListener('click',function(){onglet('sai')});
 lkMode();rend();
 </script>
 </body>

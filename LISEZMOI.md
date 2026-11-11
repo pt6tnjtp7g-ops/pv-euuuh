@@ -46,8 +46,21 @@ L'icône (logo « Police de la pêche – PV GPP87 ») est fournie en quatre tai
 **Pour voir la nouvelle icône sur un téléphone où l'application est déjà installée** : mettez à jour les fichiers sur GitHub, puis supprimez l'icône de l'écran d'accueil et réinstallez l'application (l'iPhone garde l'ancienne icône tant qu'on ne la réinstalle pas ; Android la met souvent à jour seul).
 **Attention :** supprimer l'application de l'écran d'accueil peut effacer ses données, archives comprises. Avant de le faire, vérifiez que tous vos PV ont bien été envoyés par e-mail.
 
+## Saisie de matériel (onglet « Saisie »)
+L'onglet **Saisie** sert à rédiger le procès-verbal de saisie du matériel de pêche. Deux façons de commencer :
+- **Partir d'un PV déjà fait** : l'application cherche dans vos archives (par n° de PV, nom, prénom ou date de naissance) et reprend l'identité du contrevenant ; le n° du PV est rappelé dans le document (« PV rattaché »).
+- **Nouvelle saisie (formulaire vierge)** : tous les champs sont à remplir.
+
+Dans les deux cas :
+- **Chaque matériel est une fiche séparée** : bouton **+ Ajouter un matériel** pour en créer une, bouton **−** (en haut de la fiche) pour la retirer. Une fiche comprend le type (canne, moulinet, ligne, leurre, appât, épuisette, filet, nasse, hameçons, autre), la marque, le modèle, la référence ou n° de série, la quantité, une description, un n° de scellé, des observations et des photos.
+- **Date et heure de la saisie** : l'heure réelle du téléphone est prise par défaut ; le bouton **Marquer l'heure actuelle** la remet à jour, et vous pouvez aussi la corriger à la main.
+- Gardes présents, lieu (facultatif), destination du matériel (scellé, dépôt…), observations générales et **signature du contrevenant** (ou case « refuse de signer »).
+- **Générer l'aperçu**, puis partager en **PDF** ou **Word** : le document est archivé sous un numéro propre (`SAI-2026-001`…) et apparaît dans l'onglet **Archives**, avec la même recherche que les PV (une étiquette « Saisie de matériel » les distingue).
+
+À savoir : pour les PV archivés **avant** cette mise à jour, certaines informations d'identité (adresse, profession, justificatif…) sont reprises du contenu du PV : vérifiez-les dans le formulaire avant de générer. La liste des types de matériel est modifiable sur demande.
+
 ## Mettre à jour l'application
-Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v5` → `pvpeche-v6`).
+Dans le dépôt GitHub, remplacez `index.html` (bouton *Upload files*) et changez le numéro de version en tête de `sw.js` (par exemple `pvpeche-v7` → `pvpeche-v8`).
 Les téléphones récupèrent la mise à jour à l'ouverture suivante avec du réseau (parfois la deuxième).
 
 ## Sécurité et données personnelles : ce que fait (et ne fait pas) la connexion
